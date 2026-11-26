@@ -179,6 +179,7 @@ button, input, select { font-family: inherit; }
 .tool-button.accent.active { color: white; }
 .tool-button:disabled { opacity: 0.4; cursor: default; }
 .history-button { min-width: 36px; font-size: 18px; line-height: 1; }
+.icon-button { min-width: 36px; font-size: 17px; line-height: 1; }
 
 .tool-separator { flex: 0 0 auto; width: 1px; height: 26px; margin: 0 3px; background: rgba(41,53,62,0.14); }
 
@@ -322,6 +323,25 @@ button, input, select { font-family: inherit; }
 .card .go { margin-top: auto; padding-top: 6px; font-size: 9px; letter-spacing: 2px; font-weight: 700; color: #2b7d9c; }
 .card .go.danger { color: #a64e4e; }
 
+.physics-panel { flex: 1; display: flex; min-height: 0; }
+.physics-nav { flex: 0 0 220px; overflow-y: auto; padding: 14px 10px; border-right: 1px solid rgba(41,53,62,0.12); background: #eef2f3; }
+.physics-nav button { display: block; width: 100%; min-height: 38px; margin-bottom: 4px; padding: 7px 10px; text-align: left; border: 0; border-radius: 4px; background: transparent; color: #46565e; font-size: 11px; cursor: pointer; }
+.physics-nav button:hover { background: rgba(91,152,173,0.12); }
+.physics-nav button.active { background: #26343d; color: white; }
+.physics-nav button span { display: block; margin-top: 2px; color: #99a5ab; font-size: 9px; }
+.physics-nav button.active span { color: rgba(255,255,255,0.58); }
+.physics-main { flex: 1; overflow-y: auto; padding: 22px 26px 30px; }
+.physics-main h2 { margin-bottom: 4px; color: #26343d; font-size: 17px; }
+.physics-main .sub { margin-bottom: 18px; color: #87939a; font-size: 11px; }
+.physics-equations { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.equation-card { min-height: 112px; padding: 14px; border: 1px solid rgba(41,53,62,0.12); border-radius: 6px; background: white; }
+.equation-card .label { margin-bottom: 8px; color: #87939a; font-size: 9px; letter-spacing: 2px; }
+.equation-card .formula { color: #26343d; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.55; }
+.equation-card .values { margin-top: 8px; color: #687780; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 400; line-height: 1.5; overflow-wrap: anywhere; }
+.equation-card .result { margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(41,53,62,0.1); color: #26343d; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.equation-card .explanation { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(41,53,62,0.08); color: #87939a; font-size: 10px; line-height: 1.45; }
+.physics-empty { color: #87939a; font-size: 12px; line-height: 1.6; }
+
 .editor { display: flex; gap: 26px; flex-wrap: wrap; }
 .editor canvas { width: 420px; height: 420px; border-radius: 6px; border: 1px solid rgba(41,53,62,0.18); background: white; cursor: crosshair; touch-action: none; }
 .editor .form { flex: 1; min-width: 260px; max-width: 420px; display: flex; flex-direction: column; gap: 9px; }
@@ -350,6 +370,12 @@ button, input, select { font-family: inherit; }
 .presets { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 14px 152px; }
 .presets .chip { height: 26px; }
 .set-title { font-size: 9px; letter-spacing: 3px; color: #99a5ab; margin: 18px 0 12px; }
+.settings-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid rgba(41,53,62,0.12); }
+.settings-tab { height: 34px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #87939a; font-size: 9px; font-weight: 700; letter-spacing: 2px; cursor: pointer; }
+.settings-tab.active { border-bottom-color: #2b7d9c; color: #26343d; }
+.keybind-row { display: grid; grid-template-columns: 1fr 150px; align-items: center; gap: 10px; min-height: 38px; border-bottom: 1px solid rgba(41,53,62,0.07); color: #46565e; font-size: 11px; }
+.keybind-capture { height: 30px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; background: white; color: #26343d; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+.keybind-capture.capturing { border-color: #2b7d9c; background: #edf4f6; color: #2b7d9c; }
 
 /* ================= DARK UI ================= */
 
@@ -440,14 +466,34 @@ body.app-dark .lib-main .sub,
 body.app-dark .card .desc,
 body.app-dark .save-item .meta span,
 body.app-dark .view-bar .label,
+body.app-dark .settings-tab,
+body.app-dark .settings-tab.active,
 body.app-dark .set-title,
 body.app-dark .lib-group { color: #83939b; }
 body.app-dark .context-menu { background: rgba(21,29,35,0.98); }
 body.app-dark .modal { background: rgba(5,10,14,0.72); }
+body.app-dark .settings-tabs { border-bottom-color: rgba(194,211,220,0.12); }
+body.app-dark .settings-tab { color: #83939b; }
+body.app-dark .settings-tab.active { color: #dce4e8; border-bottom-color: #78b9d3; }
+body.app-dark .keybind-row { color: #aebbc2; border-bottom-color: rgba(194,211,220,0.12); }
+body.app-dark .keybind-capture { background: #202b32; border-color: rgba(194,211,220,0.16); color: #dce4e8; }
+body.app-dark .keybind-capture.capturing { background: #26343d; border-color: #78b9d3; color: #78b9d3; }
 body.app-dark .card { background: #1a242b; }
 body.app-dark .lib-main,
 body.app-dark .modal-body { background: #151d23; }
 body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
+body.app-dark .physics-nav { background: #1a242b; border-right-color: rgba(194,211,220,0.12); }
+body.app-dark .physics-nav button { color: #b8c5cb; }
+body.app-dark .physics-nav button.active { background: #26343d; color: #fff; }
+body.app-dark .physics-nav button span { color: #83939b; }
+body.app-dark .physics-main h2 { color: #dce4e8; }
+body.app-dark .physics-main .sub { color: #83939b; }
+body.app-dark .equation-card { background: #1a242b; border-color: rgba(194,211,220,0.14); }
+body.app-dark .equation-card .label { color: #83939b; }
+body.app-dark .equation-card .formula { color: #dce4e8; }
+body.app-dark .equation-card .values { color: #aebbc2; }
+body.app-dark .equation-card .result { color: #f1f6f8; border-top-color: rgba(194,211,220,0.12); }
+body.app-dark .equation-card .explanation { color: #83939b; border-top-color: rgba(194,211,220,0.12); }
 
 @media (max-width: 760px) {
     .menu { left: 8%; width: 84%; }
@@ -461,6 +507,9 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
     .sim-toolbar { max-width: calc(100vw - 28px); }
     #banner, .status-bar { display: none; }
     .lib-nav { flex-basis: 140px; }
+    .physics-nav { flex-basis: 150px; }
+    .physics-main { padding: 16px; }
+    .physics-equations { grid-template-columns: 1fr; }
     .editor canvas { width: 100%; height: auto; aspect-ratio: 1; }
 }
 </style>
@@ -525,6 +574,7 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
         <div class="tool-separator"></div>
         <span id="quickItems" style="display:contents"></span>
         <button class="tool-button accent" data-tool="more" title="Open the library of objects and physics setups">MORE ▸</button>
+        <button class="tool-button accent" id="physicsBtn" title="Open live equations and scene object list">PHYSICS</button>
         <div class="tool-separator"></div>
         <button class="tool-button" data-tool="spring" title="Spring: drag from one object to another, or to empty space for a fixed anchor">SPRING</button>
         <button class="tool-button" data-tool="rod" title="Rigid rod / rope: fixed distance between two points">ROD</button>
@@ -578,8 +628,8 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
 
     <div class="playbar" id="playbar">
         <button class="tool-button play" id="pauseButton" title="Pause / play (Space)">⏸ PAUSE</button>
-        <button class="tool-button" id="stepButton" title="Advance one frame while paused">STEP</button>
-        <button class="tool-button" id="restartButton" title="Return to the state when the simulation was last started">RESTART</button>
+        <button class="tool-button icon-button" id="stepButton" title="Advance one frame while paused" aria-label="Step one frame">›|</button>
+        <button class="tool-button icon-button" id="restartButton" title="Restart simulation" aria-label="Restart simulation">↺</button>
         <select id="speedSel" title="Simulation speed">
             <option value="0.1">0.1×</option>
             <option value="0.25">0.25×</option>
@@ -590,13 +640,13 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
         <div class="tool-separator"></div>
         <button class="tool-button" id="zoomOutBtn" title="Zoom out">−</button>
         <button class="tool-button" id="zoomInBtn" title="Zoom in">+</button>
-        <button class="tool-button" id="homeViewBtn" title="Reset the view">VIEW</button>
+        <button class="tool-button icon-button" id="homeViewBtn" title="Reset the view" aria-label="Reset the view">⌖</button>
         <div class="tool-separator"></div>
         <button class="tool-button history-button" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
         <button class="tool-button history-button" id="redoBtn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>↷</button>
-        <button class="tool-button" id="saveBtn" title="Save or load simulations">SAVE</button>
-        <button class="tool-button" id="settingsBtn" title="Gravity, drag and other settings">SETTINGS</button>
-        <button class="tool-button" id="menuButton" title="Main menu">MENU</button>
+        <button class="tool-button icon-button" id="saveBtn" title="Save or load simulations" aria-label="Save or load simulations">▣</button>
+        <button class="tool-button icon-button" id="settingsBtn" title="Gravity, drag and other settings" aria-label="Settings">⚙</button>
+        <button class="tool-button icon-button" id="menuButton" title="Main menu" aria-label="Main menu">⌂</button>
     </div>
 
     <div class="context-menu" id="contextMenu">
@@ -618,6 +668,40 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
         <div class="lib-body">
             <nav class="lib-nav" id="libNav"></nav>
             <section class="lib-main" id="libMain"></section>
+        </div>
+    </div>
+</div>
+
+<!-- ================= PHYSICS ANALYSIS ================= -->
+
+<div class="modal" id="physicsModal">
+    <div class="modal-card big">
+        <div class="modal-head">
+            <div class="modal-title">PHYSICS ANALYSIS</div>
+            <button class="modal-x" onclick="closePhysics()">✕</button>
+        </div>
+        <div class="physics-panel">
+            <nav class="physics-nav" id="physicsNav"></nav>
+            <section class="physics-main" id="physicsMain"></section>
+        </div>
+    </div>
+</div>
+
+<!-- ================= LEAVE CONFIRMATION ================= -->
+
+<div class="modal" id="leaveModal">
+    <div class="modal-card small">
+        <div class="modal-head">
+            <div class="modal-title">LEAVE SIMULATION</div>
+            <button class="modal-x" onclick="closeLeaveConfirmation()" aria-label="Cancel">✕</button>
+        </div>
+        <div class="modal-body">
+            <p class="note" style="margin-bottom:16px;font-size:12px;line-height:1.6">Save this simulation before returning to the main menu, or discard it and continue.</p>
+            <div class="btn-row">
+                <button class="btn" id="leaveCancel">CANCEL</button>
+                <button class="btn danger" id="leaveDiscard">DISCARD</button>
+                <button class="btn primary" id="leaveSave">SAVE</button>
+            </div>
         </div>
     </div>
 </div>
@@ -653,6 +737,11 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
             <button class="modal-x" onclick="closeModal('settingsModal')">✕</button>
         </div>
         <div class="modal-body">
+            <div class="settings-tabs">
+                <button class="settings-tab active" data-settings-tab="general">GENERAL</button>
+                <button class="settings-tab" data-settings-tab="keybinds">KEYBINDS</button>
+            </div>
+            <div id="settingsGeneralTab">
             <div class="set-row"><span>Gravity (m/s²)</span><input type="number" id="setGravity" step="0.1"></div>
             <div class="presets">
                 <button class="chip" data-g="9.81">EARTH</button>
@@ -674,6 +763,12 @@ body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
             <div class="set-row"><span>Background image</span><label class="file-btn">CHOOSE IMAGE<input type="file" id="setBackgroundImage" accept="image/*"></label></div>
             <p class="note">Images up to 2 MB. Choosing a color clears the image.</p>
             <p class="note">Gravity, drag and the friction switch are saved with each simulation.</p>
+            </div>
+            <div id="settingsKeybindTab" style="display:none">
+                <div class="set-title">KEYBINDS</div>
+                <div id="keybindList"></div>
+                <div class="btn-row" style="margin-top:12px"><button class="btn" id="resetKeybinds">RESET TO DEFAULTS</button></div>
+            </div>
         </div>
     </div>
 </div>
@@ -780,7 +875,9 @@ function createBody(o) {
         color: o.color || '#779bb0',
         fx: o.fx || 0, fy: o.fy || 0, group: o.group || 0,
         hollow: !!o.hollow, isGround: !!o.isGround,
-        trail: [], wv: null, wn: null, minX: 0, maxX: 0, minY: 0, maxY: 0
+        trail: [], wv: null, wn: null, minX: 0, maxX: 0, minY: 0, maxY: 0,
+        physicsWork: 0, physicsPower: 0, physicsNetX: 0, physicsNetY: 0, impulseX: 0, impulseY: 0,
+        prevPhysicsX: o.x || 0, prevPhysicsY: o.y || 0, prevPhysicsVx: o.vx || 0, prevPhysicsVy: o.vy || 0
     };
     if (o.id != null && o.id >= nextId) nextId = o.id + 1;
 
@@ -1225,7 +1322,15 @@ function step(h) {
     for (let it = 0; it < ITER; it++) { solveJoints(); solveContacts(); }
     for (const b of bodies) {
         if (b.invMass === 0) continue;
-        b.x += b.vx * h; b.y += b.vy * h; b.angle += b.w * h;
+        const dx = b.vx * h, dy = b.vy * h;
+        b.x += dx; b.y += dy; b.angle += b.w * h;
+        const dvx = b.vx - b.prevPhysicsVx, dvy = b.vy - b.prevPhysicsVy;
+        const fx = b.mass * dvx / h, fy = b.mass * dvy / h;
+        b.physicsNetX = fx; b.physicsNetY = fy;
+        b.impulseX += b.mass * dvx; b.impulseY += b.mass * dvy;
+        b.physicsWork += fx * dx + fy * dy;
+        b.physicsPower = fx * b.vx + fy * b.vy;
+        b.prevPhysicsVx = b.vx; b.prevPhysicsVy = b.vy;
     }
     simTime += h;
     stepCount++;
@@ -1635,6 +1740,7 @@ let canvas, ctx, dpr = 1, SW = 800, SH = 600;
 let inited = false, running = false, looping = false, paused = false;
 let activeTool = 'select', placeSpec = null;
 let selected = null, selectedJoint = null;
+let physicsBodyId = null;
 let snapshot = null;
 const undoStack = [];
 const redoStack = [];
@@ -1643,6 +1749,12 @@ let homeCam = { x: 0, y: -4, zoom: 50 };
 const view = { grid: true, vectors: false, trails: false, data: true };
 let uiTheme = 'light';
 let hintDismissed = false;
+const DEFAULT_KEYBINDS = {
+    pause: 'Space', select: 'V', pan: 'H', box: 'B', circle: 'C', triangle: 'T', plank: 'P',
+    library: 'L', physics: 'F', save: 'Ctrl+S', settings: 'Ctrl+,', undo: 'Ctrl+Z', redo: 'Ctrl+Y',
+    step: '.', delete: 'Delete'
+};
+let keybinds = Object.assign({}, DEFAULT_KEYBINDS);
 const LAUNCH_GAIN = 2;
 
 let mouse = { x: 0, y: 0 }, mouseScr = { x: 0, y: 0 };
@@ -1665,6 +1777,7 @@ function loadPrefs() {
     Object.assign(view, p.view || {});
     uiTheme = p.theme === 'dark' ? 'dark' : 'light';
     hintDismissed = p.hintDismissed === true;
+    keybinds = Object.assign({}, DEFAULT_KEYBINDS, p.keybinds || {});
     S.gravity = isFinite(p.gravity) ? p.gravity : S.gravity;
     S.airDrag = isFinite(p.airDrag) ? Math.max(0, p.airDrag) : S.airDrag;
     S.friction = p.friction !== false;
@@ -1682,6 +1795,7 @@ function savePrefs() {
         airDrag: S.airDrag,
         friction: S.friction,
         hintDismissed,
+        keybinds,
         background: { color: sceneBackground.color, image: sceneBackground.image }
     });
 }
@@ -1843,6 +1957,17 @@ function startGame() {
 
 function resumeGame() { showSim(); }
 
+function openLeaveConfirmation() {
+    $('leaveModal').classList.add('open');
+}
+function closeLeaveConfirmation() {
+    $('leaveModal').classList.remove('open');
+}
+function discardAndGoHome() {
+    closeLeaveConfirmation();
+    goHome();
+}
+
 function goHome() {
     running = false;
     closeLibrary(); closeModal('saveModal'); closeModal('settingsModal'); closeContext();
@@ -1962,6 +2087,9 @@ function markEdited() { if (paused) snapshot = JSON.stringify(serialize()); }
 
 function clearHistory() {
     hist.t.length = hist.ke.length = hist.pe.length = hist.se.length = hist.tot.length = 0;
+    for (const b of bodies) {
+        b.physicsWork = 0; b.physicsPower = 0; b.physicsNetX = 0; b.physicsNetY = 0; b.impulseX = 0; b.impulseY = 0;
+    }
     lastSample = 0;
     for (const b of bodies) b.trail.length = 0;
 }
@@ -2065,7 +2193,14 @@ function initPhysics() {
     $('banner').onclick = hideBanner;
     $('saveBtn').onclick = openSave;
     $('settingsBtn').onclick = openSettings;
-    $('menuButton').onclick = goHome;
+    $('physicsBtn').onclick = openPhysics;
+    $('menuButton').onclick = openLeaveConfirmation;
+    $('leaveCancel').onclick = closeLeaveConfirmation;
+    $('leaveDiscard').onclick = discardAndGoHome;
+    $('leaveSave').onclick = () => {
+        closeLeaveConfirmation();
+        openSave();
+    };
     $('hint').onclick = hideHint;
     updateHintState();
     updateHistoryButtons();
@@ -2349,6 +2484,64 @@ function onContext(e) {
 }
 function closeContext() { const m = $('contextMenu'); if (m) m.style.display = 'none'; }
 
+function switchSettingsTab(name) {
+    document.querySelectorAll('[data-settings-tab]').forEach(b => b.classList.toggle('active', b.dataset.settingsTab === name));
+    $('settingsGeneralTab').style.display = name === 'general' ? '' : 'none';
+    $('settingsKeybindTab').style.display = name === 'keybinds' ? '' : 'none';
+}
+
+function formatKeyEvent(e) {
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return null;
+    const parts = [];
+    if (e.ctrlKey) parts.push('Ctrl');
+    if (e.metaKey) parts.push('Meta');
+    if (e.altKey) parts.push('Alt');
+    if (e.shiftKey) parts.push('Shift');
+    let key = e.key;
+    if (e.code === 'Space') key = 'Space';
+    else if (key.length === 1) key = key.toUpperCase();
+    else if (key === 'Delete') key = 'Delete';
+    else if (key === 'ArrowLeft') key = 'Left';
+    else if (key === 'ArrowRight') key = 'Right';
+    else if (key === 'Escape') key = 'Esc';
+    else if (key === '.') key = '.';
+    else if (key === ',') key = ',';
+    parts.push(key);
+    return parts.join('+');
+}
+
+function renderKeybinds() {
+    const list = $('keybindList');
+    if (!list) return;
+    list.innerHTML = '';
+    const labels = {
+        pause: 'Pause / play', select: 'Select tool', pan: 'Pan tool', box: 'Place box', circle: 'Place circle', triangle: 'Place triangle', plank: 'Place plank',
+        library: 'Open library', physics: 'Open physics analysis', save: 'Save / load panel', settings: 'Open settings', undo: 'Undo', redo: 'Redo', step: 'Step frame', delete: 'Delete selection'
+    };
+    Object.keys(DEFAULT_KEYBINDS).forEach(action => {
+        const row = document.createElement('div'); row.className = 'keybind-row';
+        const label = document.createElement('span'); label.textContent = labels[action];
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'keybind-capture'; button.textContent = keybinds[action]; button.dataset.action = action;
+        button.onclick = () => {
+            document.querySelectorAll('.keybind-capture').forEach(b => b.classList.remove('capturing'));
+            button.classList.add('capturing'); button.textContent = 'PRESS KEYS';
+            const capture = event => {
+                if (event.key === 'Escape') { window.removeEventListener('keydown', capture, true); button.classList.remove('capturing'); button.textContent = keybinds[action]; return; }
+                event.preventDefault(); event.stopPropagation();
+                const binding = formatKeyEvent(event);
+                if (!binding) return;
+                const duplicate = Object.keys(keybinds).find(key => key !== action && keybinds[key].toLowerCase() === binding.toLowerCase());
+                if (duplicate) { toast('That keybind is already assigned'); button.classList.remove('capturing'); button.textContent = keybinds[action]; window.removeEventListener('keydown', capture, true); return; }
+                keybinds[action] = binding;
+                savePrefs(); button.classList.remove('capturing'); button.textContent = binding;
+                window.removeEventListener('keydown', capture, true);
+            };
+            window.addEventListener('keydown', capture, true);
+        };
+        row.appendChild(label); row.appendChild(button); list.appendChild(row);
+    });
+}
+
 function onKey(e) {
     const tag = (e.target.tagName || '').toLowerCase();
     const typing = tag === 'input' || tag === 'textarea' || tag === 'select';
@@ -2360,6 +2553,31 @@ function onKey(e) {
         return;
     }
     if (typing || document.querySelector('.modal.open')) return;
+
+    const binding = formatKeyEvent(e);
+    if (binding) {
+        const action = Object.keys(keybinds).find(key => keybinds[key].toLowerCase() === binding.toLowerCase());
+        if (action) {
+            e.preventDefault();
+            if (action === 'pause') setPaused(!paused);
+            else if (action === 'select') setTool('select');
+            else if (action === 'pan') setTool('pan');
+            else if (action === 'box') setTool('place', OBJECT_BY_ID.box.spec);
+            else if (action === 'circle') setTool('place', OBJECT_BY_ID.circle.spec);
+            else if (action === 'triangle') setTool('place', OBJECT_BY_ID.triangle.spec);
+            else if (action === 'plank') setTool('place', OBJECT_BY_ID.plank.spec);
+            else if (action === 'library') openLibrary();
+            else if (action === 'physics') openPhysics();
+            else if (action === 'save') openSave();
+            else if (action === 'settings') openSettings();
+            else if (action === 'undo') undo();
+            else if (action === 'redo') redo();
+            else if (action === 'step' && paused) stepFrames(1);
+            else if (action === 'delete') { if (selected) deleteBody(selected); else if (selectedJoint) deleteJoint(selectedJoint); }
+            return;
+        }
+    }
+
     if (e.code === 'Space') { e.preventDefault(); setPaused(!paused); }
     else if ((e.key === 'Delete' || e.key === 'Backspace') && (selected || selectedJoint)) {
         e.preventDefault();
@@ -2600,6 +2818,7 @@ function animate(t) {
         $('bodyCount').textContent = bodies.length;
         refreshInspector();
         if (view.data) updateData();
+        if ($('physicsModal').classList.contains('open')) updatePhysicsPanel();
     }
 }
 
@@ -2991,7 +3210,133 @@ function openLibrary(cat) {
     renderLib();
 }
 function closeLibrary() { $('libraryModal').classList.remove('open'); }
+function closePhysics() { $('physicsModal').classList.remove('open'); }
 function closeModal(id) { $(id).classList.remove('open'); }
+
+function openPhysics() {
+    if (!inited) { showSim(); newScene(); }
+    if (physicsBodyId == null && bodies.length) physicsBodyId = bodies[0].id;
+    $('physicsModal').classList.add('open');
+    updatePhysicsPanel();
+}
+
+function fmtPhysics(v) {
+    if (!isFinite(v)) return '0';
+    const av = Math.abs(v);
+    if (av !== 0 && (av >= 1000 || av < 0.001)) return v.toExponential(3);
+    return v.toFixed(2);
+}
+
+function equationCard(label, formula, values, explanation) {
+    const card = document.createElement('div');
+    card.className = 'equation-card';
+    const title = document.createElement('div'); title.className = 'label'; title.textContent = label;
+    const formulaEl = document.createElement('div'); formulaEl.className = 'formula'; formulaEl.textContent = formula;
+
+    const parts = values.split(' | ');
+    const hasResult = parts.length > 1;
+    const resultText = hasResult ? parts.pop().trim() : '';
+    const substitutions = hasResult ? parts.join(' | ') : values;
+
+    const valuesEl = document.createElement('div'); valuesEl.className = 'values'; valuesEl.textContent = substitutions;
+    card.appendChild(title); card.appendChild(formulaEl); card.appendChild(valuesEl);
+    if (hasResult) {
+        const resultEl = document.createElement('div'); resultEl.className = 'result'; resultEl.textContent = resultText;
+        card.appendChild(resultEl);
+    }
+    const explanationEl = document.createElement('div'); explanationEl.className = 'explanation'; explanationEl.textContent = explanation;
+    card.appendChild(explanationEl);
+    return card;
+}
+
+function updatePhysicsPanel() {
+    const nav = $('physicsNav');
+    const main = $('physicsMain');
+    if (!nav || !main) return;
+
+    nav.innerHTML = '';
+    if (!bodies.length) {
+        main.innerHTML = '<h2>Scene is empty</h2><div class="physics-empty">Add an object or load a physics setup to inspect equations.</div>';
+        return;
+    }
+
+    if (physicsBodyId == null || !bodies.some(b => b.id === physicsBodyId)) physicsBodyId = bodies[0].id;
+    for (const b of bodies) {
+        const button = document.createElement('button');
+        button.classList.toggle('active', b.id === physicsBodyId);
+        button.appendChild(document.createTextNode(b.name || (b.isGround ? 'Ground' : 'Object')));
+        const type = document.createElement('span');
+        type.textContent = b.static ? 'Static body' : (b.shape === 'circle' ? 'Circle' : 'Polygon');
+        button.appendChild(type);
+        button.onclick = () => { physicsBodyId = b.id; updatePhysicsPanel(); };
+        nav.appendChild(button);
+    }
+
+    const b = bodies.find(item => item.id === physicsBodyId) || bodies[0];
+    const speed = Math.hypot(b.vx, b.vy);
+    const keTrans = 0.5 * b.mass * speed * speed;
+    const keRot = 0.5 * b.mass * b.iPerMass * b.w * b.w;
+    const pe = b.mass * S.gravity * -b.y;
+    const momentumX = b.mass * b.vx;
+    const momentumY = b.mass * b.vy;
+    const momentumMagnitude = b.mass * speed;
+    const netForceX = b.static ? 0 : b.physicsNetX;
+    const netForceY = b.static ? 0 : b.physicsNetY;
+
+    main.innerHTML = '';
+    const title = document.createElement('h2'); title.textContent = b.name || 'Object';
+    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = b.static ? 'Static body - no translational or rotational motion' : 'Live values from the current physics state';
+    const cards = document.createElement('div'); cards.className = 'physics-equations';
+    main.appendChild(title); main.appendChild(sub); main.appendChild(cards);
+
+    cards.appendChild(equationCard('POSITION', 'r(t) = (x, y)', 'x = ' + fmtPhysics(b.x) + ' m | y = ' + fmtPhysics(-b.y) + ' m', 'Tracks the object’s location from the world origin. Elevation y uses positive upward values.'));
+    cards.appendChild(equationCard('LINEAR MOTION', 'v = (dx/dt, dy/dt); s = |v|', 'vx = ' + fmtPhysics(b.vx) + ' m/s | vy = ' + fmtPhysics(-b.vy) + ' m/s | s = ' + fmtPhysics(speed) + ' m/s', 'Velocity describes the speed and direction of motion; s is the scalar speed.'));
+    cards.appendChild(equationCard('LINEAR MOMENTUM', 'p = mv', 'px = ' + fmtPhysics(momentumX) + ' kg·m/s | py = ' + fmtPhysics(-momentumY) + ' kg·m/s | |p| = ' + fmtPhysics(momentumMagnitude) + ' kg·m/s', 'Momentum measures the quantity of translational motion and is conserved in the absence of external impulses.'));
+    cards.appendChild(equationCard('IMPULSE', 'J = Δp = FΔt', 'Jx = ' + fmtPhysics(b.impulseX) + ' N·s | Jy = ' + fmtPhysics(-b.impulseY) + ' N·s | |J| = ' + fmtPhysics(Math.hypot(b.impulseX, b.impulseY)) + ' N·s', 'Impulse is the accumulated change in momentum since this body entered the scene or was reset.'));
+
+    if (b.static) {
+        cards.appendChild(equationCard('STATIC EQUILIBRIUM', 'ΣF = 0; Στ = 0', 'm = ' + fmtPhysics(b.mass) + ' kg | v = 0 m/s | ω = 0 rad/s', 'A static body has balanced net forces and torques, so it cannot translate or rotate.'));
+    } else {
+        const ax = b.fx / b.mass - S.airDrag * b.vx;
+        const ay = S.gravity + b.fy / b.mass - S.airDrag * b.vy;
+        cards.appendChild(equationCard('NEWTON’S SECOND LAW', 'ΣF = ma', 'm = ' + fmtPhysics(b.mass) + ' kg | ax ≈ ' + fmtPhysics(ax) + ' m/s² | ay ≈ ' + fmtPhysics(ay) + ' m/s² | Fg = ' + fmtPhysics(b.mass * S.gravity) + ' N', 'Converts the net force and mass into acceleration. A larger net force produces a larger acceleration.'));
+        if (S.airDrag > 0) {
+            const fdx = -S.airDrag * b.vx * b.mass, fdy = -S.airDrag * b.vy * b.mass;
+            cards.appendChild(equationCard('LINEAR DRAG', 'Fd = -cv', 'c = ' + fmtPhysics(S.airDrag) + ' 1/s | Fdx = ' + fmtPhysics(fdx) + ' N | Fdy = ' + fmtPhysics(fdy) + ' N', 'Opposes velocity and reduces motion more strongly as speed increases.'));
+        }
+        if (b.fx || b.fy) cards.appendChild(equationCard('APPLIED FORCE', 'Fapplied = (Fx, Fy)', 'Fx = ' + fmtPhysics(b.fx) + ' N | Fy = ' + fmtPhysics(-b.fy) + ' N | magnitude = ' + fmtPhysics(Math.hypot(b.fx, b.fy)) + ' N', 'The external force applied directly to this object. It contributes to the net force and acceleration.'));
+    }
+
+    cards.appendChild(equationCard('NET FORCE', 'Fnet = ΣF = ma', 'Fx = ' + fmtPhysics(netForceX) + ' N | Fy = ' + fmtPhysics(-netForceY) + ' N | |Fnet| = ' + fmtPhysics(Math.hypot(netForceX, netForceY)) + ' N', 'The combined gravitational, applied, drag, contact, and constraint effect currently acting on this body.'));
+    cards.appendChild(equationCard('WORK', 'W = F · d = Fd cos θ', 'displacement-based accumulated work = ' + fmtPhysics(b.physicsWork) + ' J', 'Work is energy transferred by a force acting through displacement. Positive work adds energy; negative work removes it.'));
+    cards.appendChild(equationCard('POWER', 'P = dW/dt = F · v', 'instantaneous power = ' + fmtPhysics(b.physicsPower) + ' W | sign indicates energy added (' + (b.physicsPower >= 0 ? '+' : '-') + ')', 'Power is the rate at which work transfers energy. Positive power adds energy to the body; negative power removes it.'));
+    cards.appendChild(equationCard('KINETIC ENERGY', 'KE = ½mv² + ½Iω²', 'KEt = ½(' + fmtPhysics(b.mass) + ')(' + fmtPhysics(speed) + ')² = ' + fmtPhysics(keTrans) + ' J | KEr = ' + fmtPhysics(keRot) + ' J', 'Measures energy from translation and rotation. Faster motion stores more kinetic energy.'));
+    cards.appendChild(equationCard('GRAVITATIONAL POTENTIAL', 'PE = mgh', 'm = ' + fmtPhysics(b.mass) + ' kg | g = ' + fmtPhysics(S.gravity) + ' m/s² | h = ' + fmtPhysics(-b.y) + ' m | PE = ' + fmtPhysics(pe) + ' J', 'Measures stored gravitational energy from the object’s height relative to the origin.'));
+    cards.appendChild(equationCard('ANGULAR MOTION', 'α = τ/I; L = Iω', 'ω = ' + fmtPhysics(b.w) + ' rad/s | θ = ' + fmtPhysics(b.angle / DEG) + ' deg | I = ' + fmtPhysics(b.mass * b.iPerMass) + ' kg·m²', 'Angular velocity describes rotation speed, while angular momentum measures its rotational effect.'));
+
+    const related = joints.filter(j => j.a === b || j.b === b);
+    for (const j of related) {
+        const p = jPoints(j);
+        const length = Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y);
+        if (j.type === 'spring') {
+            const extension = length - j.rest;
+            const force = j.k * extension;
+            cards.appendChild(equationCard('SPRING FORCE', 'Fs = -k(x - x0)', 'k = ' + fmtPhysics(j.k) + ' N/m | x = ' + fmtPhysics(length) + ' m | x0 = ' + fmtPhysics(j.rest) + ' m | Δx = ' + fmtPhysics(extension) + ' m | Fs = ' + fmtPhysics(-force) + ' N', 'Hooke’s law pulls the spring toward its rest length. Positive extension creates a restoring force toward equilibrium.'));
+        } else if (j.type === 'rod') {
+            const difference = length - j.length;
+            cards.appendChild(equationCard('RIGID CONSTRAINT', '|rA - rB| = L', 'L = ' + fmtPhysics(j.length) + ' m | current = ' + fmtPhysics(length) + ' m | difference = ' + fmtPhysics(difference) + ' m', 'Keeps the distance between two connection points fixed or prevents a body from moving away from a world anchor.'));
+        } else if (j.type === 'pin') {
+            const p = jPoints(j)[0];
+            cards.appendChild(equationCard('HINGE CONSTRAINT', 'rA - rB = 0', 'anchor/current point = (' + fmtPhysics(p.x) + ', ' + fmtPhysics(-p.y) + ') m' + (j.b ? ' | two-body hinge' : ' | world-anchor hinge'), 'A pin fixes the chosen point in place while allowing or restricting rotation as the constraint permits.'));
+        }
+    }
+
+    for (const c of contacts) {
+        if (c.A !== b && c.B !== b) continue;
+        const normalLimit = c.mu * c.jn;
+        cards.appendChild(equationCard('FRICTION LIMIT', '|Ff| <= μN', 'μ = ' + fmtPhysics(c.mu) + ' | normal impulse = ' + fmtPhysics(c.jn) + ' | tangent impulse = ' + fmtPhysics(c.jt) + ' | limit = ' + fmtPhysics(normalLimit), 'Limits friction from exceeding the product of friction coefficient and normal force; the tangent impulse prevents excessive sliding.'));
+    }
+}
 
 function renderLib() {
     const nav = $('libNav');
@@ -3343,6 +3688,8 @@ function openSettings() {
     $('setDarkTheme').checked = uiTheme === 'dark';
     $('setBackgroundColor').value = sceneBackground.color;
     $('settingsModal').classList.add('open');
+    switchSettingsTab('general');
+    renderKeybinds();
 }
 
 function setSceneBackgroundImage(source) {
@@ -3406,6 +3753,11 @@ function initSettingsUI() {
         applyTheme(e.target.checked ? 'dark' : 'light');
         savePrefs();
     });
+    document.querySelectorAll('[data-settings-tab]').forEach(b => b.onclick = () => switchSettingsTab(b.dataset.settingsTab));
+    $('resetKeybinds').onclick = () => {
+        keybinds = Object.assign({}, DEFAULT_KEYBINDS);
+        savePrefs(); renderKeybinds(); toast('Keybinds reset');
+    };
     document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
         S.gravity = parseFloat(b.dataset.g);
         $('setGravity').value = S.gravity;
