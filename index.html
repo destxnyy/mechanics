@@ -1,0 +1,3438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>KINETICA</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #080d16;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+
+button, input, select { font-family: inherit; }
+
+/* ================= HOME ================= */
+
+#home { position: fixed; inset: 0; overflow: hidden; }
+
+.background {
+    position: absolute;
+    inset: -2%;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 70% 40%, #1d3a52 0%, #0b1524 60%, #080d16 100%);
+    animation: backgroundMove 35s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundMove { from { transform: scale(1); } to { transform: scale(1.07); } }
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(90deg, rgba(4,9,18,0.92) 0%, rgba(4,9,18,0.75) 28%, rgba(4,9,18,0.25) 65%, rgba(4,9,18,0.05) 100%),
+        linear-gradient(0deg, rgba(3,7,14,0.6), transparent 45%);
+}
+
+.home-demo {
+    position: absolute;
+    z-index: 2;
+    top: 50%; left: 41%; right: 3%;
+    height: min(76vh, 680px);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+.home-demo canvas { display: block; width: 100%; height: 100%; }
+.home-demo-tag, .home-demo-meta {
+    position: absolute;
+    left: 5%;
+    color: rgba(235,246,250,0.72);
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+.home-demo-tag { top: 7%; display: flex; flex-direction: column; gap: 7px; }
+.home-demo-tag strong { color: #e8f4f7; font-size: 13px; letter-spacing: 2px; }
+.home-demo-tag span { color: #78c9e6; }
+.home-demo-meta { bottom: 7%; color: rgba(235,246,250,0.48); }
+.home-demo-meta span { margin: 0 8px; color: #78c9e6; }
+
+.menu {
+    position: absolute;
+    top: 50%;
+    left: 11%;
+    transform: translateY(-50%);
+    width: 340px;
+    z-index: 3;
+    animation: appear 1s ease forwards;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translate(-20px, -50%); }
+    to { opacity: 1; transform: translate(0, -50%); }
+}
+
+.subtitle { color: #76c9ed; font-size: 10px; letter-spacing: 5px; font-weight: 600; margin-bottom: 17px; }
+.title { font-size: 54px; font-weight: 300; letter-spacing: 5px; line-height: 1; }
+.title span { font-weight: 700; }
+.title-line { width: 65px; height: 2px; background: #56b9e7; margin-top: 23px; margin-bottom: 42px; box-shadow: 0 0 12px #56b9e7; }
+
+.menu-options { display: flex; flex-direction: column; gap: 5px; }
+
+.menu-item {
+    position: relative;
+    width: 100%;
+    padding: 16px 18px;
+    background: transparent;
+    border: none;
+    color: rgba(230,240,250,0.65);
+    text-align: left;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.menu-item::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 2px; height: 0;
+    background: #5ac5f5;
+    box-shadow: 0 0 12px #5ac5f5;
+    transition: height 0.25s ease;
+}
+
+.menu-item:hover { color: white; padding-left: 29px; background: linear-gradient(90deg, rgba(74,171,220,0.15), transparent); }
+.menu-item:hover::before { height: 65%; }
+.menu-item .number { display: inline-block; width: 35px; color: #599bbd; font-size: 11px; }
+
+.bottom-info { position: absolute; z-index: 3; left: 11%; bottom: 38px; color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 2px; }
+.bottom-info span { color: #65bde7; }
+
+/* ================= LOADING ================= */
+
+#loading { display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center; background: #080d16; }
+.loading-panel { width: min(360px, calc(100vw - 48px)); text-align: center; }
+.loading-mark { width: 42px; height: 42px; margin: 0 auto 22px; border: 2px solid rgba(101,189,231,0.18); border-top-color: #65bde7; border-radius: 50%; animation: loadingSpin 0.75s linear infinite; }
+.loading-title { margin-bottom: 14px; font-size: 12px; letter-spacing: 4px; }
+.loading-progress { height: 2px; overflow: hidden; background: rgba(255,255,255,0.08); }
+.loading-progress span { display: block; width: 100%; height: 100%; background: #65bde7; box-shadow: 0 0 10px #65bde7; transform-origin: left; animation: loadingProgress 1.6s ease-out forwards; }
+.loading-detail { margin-top: 12px; color: rgba(255,255,255,0.38); font-size: 9px; letter-spacing: 2px; }
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
+@keyframes loadingProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ================= SIMULATION ================= */
+
+#simulation { display: none; position: fixed; inset: 0; background: #dfe4e5; color: #1d252b; user-select: none; -webkit-user-select: none; }
+#physicsCanvas { display: block; width: 100%; height: 100%; cursor: default; touch-action: none; }
+#physicsCanvas.dragging { cursor: grabbing; }
+
+.panel {
+    border: 1px solid rgba(41,53,62,0.18);
+    border-radius: 6px;
+    background: rgba(246,248,248,0.95);
+    box-shadow: 0 8px 24px rgba(39,49,55,0.12);
+}
+
+.sim-toolbar {
+    position: absolute;
+    top: 14px; left: 14px;
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px;
+    max-width: calc(100vw - 260px);
+    overflow-x: auto;
+    border: 1px solid rgba(41,53,62,0.18);
+    border-radius: 6px;
+    background: rgba(246,248,248,0.95);
+    box-shadow: 0 8px 24px rgba(39,49,55,0.12);
+}
+
+.sim-toolbar::-webkit-scrollbar { height: 4px; }
+
+.tool-button {
+    flex: 0 0 auto;
+    min-width: 40px; height: 40px;
+    padding: 0 9px;
+    border: 0; border-radius: 4px;
+    background: transparent;
+    color: #52616a;
+    font: 700 10px Arial, Helvetica, sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.tool-button canvas { width: 24px; height: 24px; }
+.tool-button:hover { background: rgba(38,52,61,0.1); }
+.tool-button.active { background: #26343d; color: white; }
+.tool-button.accent { color: #2b7d9c; }
+.tool-button.accent.active { color: white; }
+.tool-button:disabled { opacity: 0.4; cursor: default; }
+.history-button { min-width: 36px; font-size: 18px; line-height: 1; }
+
+.tool-separator { flex: 0 0 auto; width: 1px; height: 26px; margin: 0 3px; background: rgba(41,53,62,0.14); }
+
+.view-bar { top: 74px; padding: 4px 6px; gap: 4px; }
+.view-bar .label { font-size: 9px; letter-spacing: 2px; color: #87939a; padding: 0 6px; }
+.chip { flex: 0 0 auto; height: 24px; padding: 0 9px; border: 1px solid rgba(41,53,62,0.18); border-radius: 12px; background: transparent; color: #687780; font-size: 9px; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
+.chip.active { background: #5b98ad; border-color: #5b98ad; color: white; }
+
+.playbar {
+    position: absolute;
+    left: 50%; bottom: 14px;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px;
+    max-width: calc(100vw - 20px);
+    overflow-x: auto;
+    border: 1px solid rgba(41,53,62,0.18);
+    border-radius: 6px;
+    background: rgba(246,248,248,0.96);
+    box-shadow: 0 8px 24px rgba(39,49,55,0.14);
+}
+
+.playbar .tool-button { height: 36px; flex-direction: row; }
+.playbar .play { background: #2b7d9c; color: white; min-width: 92px; font-size: 11px; }
+.playbar .play:hover { background: #226a86; }
+.playbar select { height: 30px; border: 1px solid rgba(41,53,62,0.18); border-radius: 4px; background: white; color: #46565e; font-size: 11px; padding: 0 4px; }
+
+#pausedTag {
+    display: none;
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    padding: 7px 16px; border-radius: 16px;
+    background: #26343d; color: white; font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    pointer-events: none;
+}
+
+#banner {
+    position: absolute; left: 14px; bottom: 14px;
+    max-width: 300px;
+    padding: 8px 11px;
+    border-radius: 4px;
+    background: rgba(246,248,248,0.92);
+    color: #687780; font-size: 10px; line-height: 1.5;
+    cursor: pointer;
+}
+
+#hint {
+    display: none;
+    position: absolute; left: 14px; top: 112px;
+    max-width: 330px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 12px; line-height: 1.5; color: #46565e;
+}
+#hint b { display: block; color: #26343d; font-size: 11px; letter-spacing: 2px; margin-bottom: 5px; }
+#hint small { display: block; margin-top: 6px; color: #99a5ab; font-size: 9px; letter-spacing: 1px; }
+
+.status-bar {
+    position: absolute; left: 14px; bottom: 74px;
+    display: flex; gap: 14px;
+    padding: 7px 11px; border-radius: 4px;
+    background: rgba(246,248,248,0.92);
+    color: #687780; font-size: 9px; letter-spacing: 1px;
+    transition: bottom 220ms ease;
+}
+.status-bar.hint-dismissed { bottom: 14px; }
+.status-bar strong { color: #303d45; }
+
+.inspector { position: absolute; top: 14px; right: 14px; width: 232px; }
+.inspector-title { height: 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid rgba(41,53,62,0.12); color: #52616a; font-size: 10px; letter-spacing: 2px; }
+.inspector-body { max-height: calc(100vh - 360px); min-height: 70px; overflow-y: auto; padding: 10px 12px 12px; }
+.inspector-empty { padding: 10px 2px; color: #87939a; font-size: 11px; line-height: 1.5; }
+.property-section { display: flex; flex-direction: column; gap: 6px; }
+.property-name { margin-bottom: 3px; color: #34444d; font-size: 12px; font-weight: 700; }
+.property-row { display: grid; grid-template-columns: 86px 1fr; align-items: center; gap: 8px; color: #687780; font-size: 10px; }
+.property-row input[type="number"], .property-row input[type="text"] { width: 100%; height: 28px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; background: white; color: #34444d; padding: 0 7px; font-size: 11px; }
+.property-row input[type="checkbox"] { width: 15px; height: 15px; accent-color: #5b98ad; }
+.property-row input[type="color"] { width: 100%; height: 26px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; background: white; padding: 1px; }
+.property-row .read { color: #34444d; font-size: 11px; font-weight: 700; }
+.mini-actions { display: flex; gap: 6px; margin-top: 6px; }
+.mini-actions button, .btn {
+    flex: 1; height: 30px; border: 1px solid rgba(41,53,62,0.18); border-radius: 4px;
+    background: white; color: #46565e; font-size: 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; padding: 0 10px;
+}
+.mini-actions button:hover, .btn:hover { background: #eef2f3; }
+.btn.primary { background: #2b7d9c; border-color: #2b7d9c; color: white; }
+.btn.primary:hover { background: #226a86; }
+.btn.danger, .mini-actions button.danger { color: #a64e4e; }
+
+.data-panel { position: absolute; right: 14px; bottom: 14px; width: 232px; }
+.data-body { padding: 8px 10px 10px; }
+.data-body canvas { width: 100%; height: 90px; display: block; border-radius: 3px; border: 1px solid rgba(41,53,62,0.1); }
+.legend { display: flex; gap: 9px; margin: 6px 0; font-size: 9px; color: #687780; }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+.data-grid { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; font-size: 10px; color: #687780; }
+.data-grid strong { color: #303d45; text-align: right; font-weight: 700; }
+
+.context-menu { display: none; position: fixed; z-index: 30; width: 172px; padding: 5px; border: 1px solid rgba(41,53,62,0.18); border-radius: 6px; background: rgba(246,248,248,0.98); box-shadow: 0 12px 30px rgba(39,49,55,0.18); }
+.context-menu button { width: 100%; height: 34px; border: 0; border-radius: 4px; background: transparent; color: #46565e; text-align: left; padding: 0 9px; font-size: 11px; cursor: pointer; }
+.context-menu button:hover { background: rgba(91,152,173,0.12); }
+.context-menu button.danger { color: #a64e4e; }
+
+#toast {
+    position: fixed; left: 50%; bottom: 74px; transform: translateX(-50%);
+    z-index: 60; padding: 10px 16px; border-radius: 4px;
+    background: #26343d; color: white; font-size: 11px; letter-spacing: 0.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+#toast.show { opacity: 1; }
+
+/* ================= MODALS ================= */
+
+.modal { display: none; position: fixed; inset: 0; z-index: 40; background: rgba(20,28,34,0.55); align-items: center; justify-content: center; color: #1d252b; }
+.modal.open { display: flex; }
+.modal-card { display: flex; flex-direction: column; background: #f6f8f8; border-radius: 8px; box-shadow: 0 24px 70px rgba(10,18,24,0.45); overflow: hidden; }
+.modal-card.big { width: 95vw; height: 93vh; }
+.modal-card.small { width: min(460px, 94vw); max-height: 90vh; }
+.modal-head { flex: 0 0 auto; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid rgba(41,53,62,0.12); }
+.modal-title { font-size: 11px; letter-spacing: 4px; color: #46565e; font-weight: 700; }
+.modal-x { width: 34px; height: 34px; border: 0; border-radius: 4px; background: transparent; color: #687780; font-size: 16px; cursor: pointer; }
+.modal-x:hover { background: rgba(41,53,62,0.08); }
+.modal-body { padding: 18px 20px 20px; overflow-y: auto; }
+
+.lib-body { flex: 1; display: flex; min-height: 0; }
+.lib-nav { flex: 0 0 220px; overflow-y: auto; padding: 14px 10px; border-right: 1px solid rgba(41,53,62,0.12); background: #eef2f3; }
+.lib-group { padding: 14px 10px 6px; font-size: 9px; letter-spacing: 3px; color: #99a5ab; }
+.lib-nav button { display: block; width: 100%; height: 34px; padding: 0 12px; text-align: left; border: 0; border-radius: 4px; background: transparent; color: #46565e; font-size: 12px; cursor: pointer; }
+.lib-nav button:hover { background: rgba(91,152,173,0.12); }
+.lib-nav button.active { background: #26343d; color: white; }
+.lib-nav button.create { margin-top: 4px; color: #2b7d9c; font-weight: 700; }
+.lib-nav button.create.active { color: white; }
+.lib-main { flex: 1; overflow-y: auto; padding: 22px 26px 30px; }
+.lib-main h2 { font-size: 17px; font-weight: 600; color: #26343d; margin-bottom: 4px; }
+.lib-main .sub { font-size: 12px; color: #87939a; margin-bottom: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+.card { background: white; border: 1px solid rgba(41,53,62,0.12); border-radius: 6px; overflow: hidden; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; }
+.card:hover { box-shadow: 0 8px 22px rgba(39,49,55,0.16); transform: translateY(-2px); }
+.card .thumb { width: 100%; height: 120px; display: block; background: #e6ebec; }
+.card .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.card .name { font-size: 12px; font-weight: 700; color: #26343d; }
+.card .desc { font-size: 10.5px; line-height: 1.45; color: #78858c; }
+.card .go { margin-top: auto; padding-top: 6px; font-size: 9px; letter-spacing: 2px; font-weight: 700; color: #2b7d9c; }
+.card .go.danger { color: #a64e4e; }
+
+.editor { display: flex; gap: 26px; flex-wrap: wrap; }
+.editor canvas { width: 420px; height: 420px; border-radius: 6px; border: 1px solid rgba(41,53,62,0.18); background: white; cursor: crosshair; touch-action: none; }
+.editor .form { flex: 1; min-width: 260px; max-width: 420px; display: flex; flex-direction: column; gap: 9px; }
+.form-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 10px; font-size: 11px; color: #687780; }
+.form-row input[type="text"], .form-row input[type="number"] { height: 30px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; padding: 0 8px; font-size: 12px; color: #34444d; width: 100%; background: white; }
+.form-row input[type="color"] { width: 100%; height: 30px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; background: white; padding: 1px; }
+.form-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5b98ad; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row .btn { flex: 0 1 auto; height: 34px; }
+.note { font-size: 11px; line-height: 1.5; color: #78858c; }
+
+.save-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.save-row input { flex: 1; height: 34px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; padding: 0 10px; font-size: 12px; }
+.save-row .btn { flex: 0 0 90px; height: 34px; }
+.save-item { display: flex; align-items: center; gap: 8px; padding: 9px 4px; border-bottom: 1px solid rgba(41,53,62,0.08); }
+.save-item .meta { flex: 1; }
+.save-item .meta b { display: block; font-size: 12px; color: #26343d; }
+.save-item .meta span { font-size: 10px; color: #99a5ab; }
+.save-item .btn { flex: 0 0 64px; height: 28px; }
+.save-foot { display: flex; gap: 8px; margin-top: 16px; }
+.file-btn { flex: 1; display: flex; align-items: center; justify-content: center; height: 30px; border: 1px solid rgba(41,53,62,0.18); border-radius: 4px; background: white; color: #46565e; font-size: 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
+.file-btn input { display: none; }
+.set-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; margin-bottom: 12px; font-size: 12px; color: #46565e; }
+.set-row input[type="number"] { height: 32px; border: 1px solid rgba(41,53,62,0.16); border-radius: 4px; padding: 0 8px; width: 100%; font-size: 12px; }
+.set-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5b98ad; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 14px 152px; }
+.presets .chip { height: 26px; }
+.set-title { font-size: 9px; letter-spacing: 3px; color: #99a5ab; margin: 18px 0 12px; }
+
+/* ================= DARK UI ================= */
+
+body.app-dark #simulation { color: #dce4e8; }
+body.app-dark .panel,
+body.app-dark .sim-toolbar,
+body.app-dark .playbar,
+body.app-dark #banner,
+body.app-dark #hint,
+body.app-dark .status-bar,
+body.app-dark .context-menu,
+body.app-dark .modal-card,
+body.app-dark .card,
+body.app-dark .lib-nav,
+body.app-dark .data-body canvas,
+body.app-dark .editor canvas { background: #151d23; border-color: rgba(194,211,220,0.14); }
+body.app-dark .panel,
+body.app-dark .sim-toolbar,
+body.app-dark .playbar,
+body.app-dark #banner,
+body.app-dark #hint,
+body.app-dark .status-bar,
+body.app-dark .context-menu,
+body.app-dark .modal-card { color: #dce4e8; box-shadow: 0 10px 28px rgba(0,0,0,0.34); }
+body.app-dark .sim-toolbar,
+body.app-dark .playbar { background: rgba(21,29,35,0.96); }
+body.app-dark .inspector-title,
+body.app-dark .modal-head { color: #dce4e8; border-bottom-color: rgba(194,211,220,0.12); }
+body.app-dark .tool-button,
+body.app-dark .chip,
+body.app-dark .modal-x,
+body.app-dark .lib-nav button,
+body.app-dark .context-menu button,
+body.app-dark .property-row,
+body.app-dark .form-row,
+body.app-dark .set-row,
+body.app-dark .legend,
+body.app-dark .data-grid,
+body.app-dark .status-bar,
+body.app-dark #banner,
+body.app-dark #hint,
+body.app-dark .note { color: #aebbc2; }
+body.app-dark .tool-button:hover,
+body.app-dark .modal-x:hover,
+body.app-dark .lib-nav button:hover,
+body.app-dark .context-menu button:hover,
+body.app-dark .chip.active,
+body.app-dark .tool-button.active { background: rgba(137,175,192,0.16); }
+body.app-dark .tool-button.active,
+body.app-dark .tool-button.accent.active,
+body.app-dark .lib-nav button.active { color: #fff; }
+body.app-dark .tool-separator,
+body.app-dark .inspector-title,
+body.app-dark .modal-head,
+body.app-dark .save-item,
+body.app-dark .editor canvas,
+body.app-dark .data-body canvas { border-color: rgba(194,211,220,0.12); }
+body.app-dark .tool-button.accent,
+body.app-dark .btn.primary,
+body.app-dark .lib-nav button.create,
+body.app-dark .card .go,
+body.app-dark .property-name,
+body.app-dark .property-row .read,
+body.app-dark .status-bar strong,
+body.app-dark .data-grid strong,
+body.app-dark .modal-title,
+body.app-dark .card .name,
+body.app-dark .lib-main h2,
+body.app-dark .save-item .meta b { color: #78b9d3; }
+body.app-dark .chip,
+body.app-dark .mini-actions button,
+body.app-dark .btn,
+body.app-dark .file-btn,
+body.app-dark .save-row input,
+body.app-dark .playbar select,
+body.app-dark .property-row input,
+body.app-dark .form-row input { background: #202b32; border-color: rgba(194,211,220,0.16); color: #dce4e8; }
+body.app-dark .mini-actions button:hover,
+body.app-dark .btn:hover,
+body.app-dark .file-btn:hover { background: #2a3942; }
+body.app-dark .btn.primary { background: #2b7d9c; border-color: #2b7d9c; color: #fff; }
+body.app-dark .btn.danger,
+body.app-dark .mini-actions button.danger,
+body.app-dark .card .go.danger,
+body.app-dark .context-menu button.danger { color: #e58d8d; }
+body.app-dark .inspector-empty,
+body.app-dark .lib-main .sub,
+body.app-dark .card .desc,
+body.app-dark .save-item .meta span,
+body.app-dark .view-bar .label,
+body.app-dark .set-title,
+body.app-dark .lib-group { color: #83939b; }
+body.app-dark .context-menu { background: rgba(21,29,35,0.98); }
+body.app-dark .modal { background: rgba(5,10,14,0.72); }
+body.app-dark .card { background: #1a242b; }
+body.app-dark .lib-main,
+body.app-dark .modal-body { background: #151d23; }
+body.app-dark .chip.active { background: #5b98ad; border-color: #5b98ad; }
+
+@media (max-width: 760px) {
+    .menu { left: 8%; width: 84%; }
+    .home-demo { left: 0; right: 0; height: 72vh; opacity: 0.34; }
+    .home-demo-tag, .home-demo-meta { display: none; }
+    .title { font-size: 42px; }
+    .bottom-info { left: 8%; }
+    .inspector { top: auto; bottom: 66px; right: 8px; width: 190px; }
+    .inspector-body { max-height: 200px; }
+    .data-panel { display: none; }
+    .sim-toolbar { max-width: calc(100vw - 28px); }
+    #banner, .status-bar { display: none; }
+    .lib-nav { flex-basis: 140px; }
+    .editor canvas { width: 100%; height: auto; aspect-ratio: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= MAIN MENU ================= -->
+
+<div id="home">
+    <div class="background"></div>
+    <div class="overlay"></div>
+    <div class="home-demo" aria-hidden="true">
+        <canvas id="homeDemoCanvas"></canvas>
+        <div class="home-demo-tag"><span>DEMO</span><strong>DOUBLE PENDULUM</strong></div>
+    </div>
+
+    <main class="menu">
+        <div class="subtitle">MECHANICS LAB</div>
+        <h1 class="title">KINETICA</h1>
+        <div class="title-line"></div>
+
+        <div class="menu-options">
+            <button class="menu-item" id="resumeBtn" style="display:none" onclick="resumeGame()">
+                <span class="number">00</span>RESUME SIMULATION
+            </button>
+            <button class="menu-item" onclick="startGame()">
+                <span class="number">01</span>NEW SIMULATION
+            </button>
+            <button class="menu-item" onclick="loadGame()">
+                <span class="number">02</span>LOAD SIMULATION
+            </button>
+            <button class="menu-item" onclick="openExperiments()">
+                <span class="number">03</span>EXPERIMENTS
+            </button>
+            <button class="menu-item" onclick="openSettings()">
+                <span class="number">04</span>SETTINGS
+            </button>
+        </div>
+    </main>
+</div>
+
+<!-- ================= LOADING ================= -->
+
+<div id="loading">
+    <div class="loading-panel">
+        <div class="loading-mark"></div>
+        <div class="loading-title">INITIALIZING SANDBOX</div>
+        <div class="loading-progress"><span></span></div>
+        <div class="loading-detail" id="loadingDetail">CALIBRATING PHYSICS ENGINE</div>
+    </div>
+</div>
+
+<!-- ================= SIMULATION ================= -->
+
+<div id="simulation">
+    <canvas id="physicsCanvas"></canvas>
+
+    <div class="sim-toolbar" id="toolbar">
+        <button class="tool-button active" data-tool="select" title="Select, move and rotate objects. Drag empty space to pan.">SELECT</button>
+        <button class="tool-button" data-tool="pan" title="Pan the view (or drag with the middle mouse button)">PAN</button>
+        <div class="tool-separator"></div>
+        <span id="quickItems" style="display:contents"></span>
+        <button class="tool-button accent" data-tool="more" title="Open the library of objects and physics setups">MORE ▸</button>
+        <div class="tool-separator"></div>
+        <button class="tool-button" data-tool="spring" title="Spring: drag from one object to another, or to empty space for a fixed anchor">SPRING</button>
+        <button class="tool-button" data-tool="rod" title="Rigid rod / rope: fixed distance between two points">ROD</button>
+        <button class="tool-button" data-tool="pin" title="Hinge: click an object to pin it to the world, or drag onto another object to join them">HINGE</button>
+    </div>
+
+    <div class="sim-toolbar view-bar" id="viewbar">
+        <span class="label">VIEW</span>
+        <button class="chip" data-view="grid">GRID</button>
+        <button class="chip" data-view="vectors">VELOCITY</button>
+        <button class="chip" data-view="trails">TRAILS</button>
+        <button class="chip" data-view="data">ENERGY</button>
+    </div>
+
+    <div id="pausedTag">PAUSED</div>
+
+    <aside class="panel inspector" id="inspector">
+        <div class="inspector-title"><span>PROPERTIES</span></div>
+        <div class="inspector-body" id="inspectorBody"></div>
+    </aside>
+
+    <aside class="panel data-panel" id="dataPanel">
+        <div class="inspector-title">ENERGY &amp; MOMENTUM</div>
+        <div class="data-body">
+            <canvas id="chart" width="480" height="180"></canvas>
+            <div class="legend">
+                <span><i style="background:#3d8fb0"></i>KE</span>
+                <span><i style="background:#6fae7c"></i>PE</span>
+                <span><i style="background:#d9923f"></i>Spring</span>
+                <span><i style="background:#26343d"></i>Total</span>
+            </div>
+            <div class="data-grid">
+                <span>Time</span><strong id="dTime">0.00 s</strong>
+                <span>Kinetic</span><strong id="dKE">0 J</strong>
+                <span>Gravitational</span><strong id="dPE">0 J</strong>
+                <span>Spring</span><strong id="dSE">0 J</strong>
+                <span>Total</span><strong id="dTot">0 J</strong>
+                <span>Momentum</span><strong id="dMom">0 kg·m/s</strong>
+            </div>
+        </div>
+    </aside>
+
+    <div id="banner"></div>
+    <div class="panel" id="hint"><b id="hintTitle"></b><span id="hintText"></span><small>CLICK TO DISMISS</small></div>
+
+    <div class="status-bar">
+        <span>BODIES <strong id="bodyCount">0</strong></span>
+        <span>FPS <strong id="fpsCount">60</strong></span>
+        <span>CURSOR <strong id="cursorPos">0.0, 0.0 m</strong></span>
+    </div>
+
+    <div class="playbar" id="playbar">
+        <button class="tool-button play" id="pauseButton" title="Pause / play (Space)">⏸ PAUSE</button>
+        <button class="tool-button" id="stepButton" title="Advance one frame while paused">STEP</button>
+        <button class="tool-button" id="restartButton" title="Return to the state when the simulation was last started">RESTART</button>
+        <select id="speedSel" title="Simulation speed">
+            <option value="0.1">0.1×</option>
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+        </select>
+        <div class="tool-separator"></div>
+        <button class="tool-button" id="zoomOutBtn" title="Zoom out">−</button>
+        <button class="tool-button" id="zoomInBtn" title="Zoom in">+</button>
+        <button class="tool-button" id="homeViewBtn" title="Reset the view">VIEW</button>
+        <div class="tool-separator"></div>
+        <button class="tool-button history-button" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+        <button class="tool-button history-button" id="redoBtn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>↷</button>
+        <button class="tool-button" id="saveBtn" title="Save or load simulations">SAVE</button>
+        <button class="tool-button" id="settingsBtn" title="Gravity, drag and other settings">SETTINGS</button>
+        <button class="tool-button" id="menuButton" title="Main menu">MENU</button>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <button id="ctxSelect">Open properties</button>
+        <button id="ctxStatic">Set static</button>
+        <button id="ctxDup">Duplicate</button>
+        <button id="ctxDel" class="danger">Delete</button>
+    </div>
+</div>
+
+<!-- ================= LIBRARY ================= -->
+
+<div class="modal" id="libraryModal">
+    <div class="modal-card big">
+        <div class="modal-head">
+            <div class="modal-title">LIBRARY</div>
+            <button class="modal-x" onclick="closeLibrary()">✕</button>
+        </div>
+        <div class="lib-body">
+            <nav class="lib-nav" id="libNav"></nav>
+            <section class="lib-main" id="libMain"></section>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SAVE / LOAD ================= -->
+
+<div class="modal" id="saveModal">
+    <div class="modal-card small">
+        <div class="modal-head">
+            <div class="modal-title">SAVED SIMULATIONS</div>
+            <button class="modal-x" onclick="closeModal('saveModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="save-row" id="saveRow">
+                <input id="saveName" type="text" placeholder="Name this simulation" maxlength="40">
+                <button class="btn primary" id="saveDo">SAVE</button>
+            </div>
+            <div id="saveList"></div>
+            <div class="save-foot">
+                <button class="btn" id="exportBtn">EXPORT FILE</button>
+                <label class="file-btn">IMPORT FILE<input type="file" id="importFile" accept=".json,application/json"></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SETTINGS ================= -->
+
+<div class="modal" id="settingsModal">
+    <div class="modal-card small">
+        <div class="modal-head">
+            <div class="modal-title">SETTINGS</div>
+            <button class="modal-x" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="set-row"><span>Gravity (m/s²)</span><input type="number" id="setGravity" step="0.1"></div>
+            <div class="presets">
+                <button class="chip" data-g="9.81">EARTH</button>
+                <button class="chip" data-g="1.62">MOON</button>
+                <button class="chip" data-g="3.71">MARS</button>
+                <button class="chip" data-g="24.79">JUPITER</button>
+                <button class="chip" data-g="0">ZERO-G</button>
+            </div>
+            <div class="set-row"><span>Air drag (1/s)</span><input type="number" id="setDrag" step="0.05" min="0"></div>
+            <div class="set-row"><span>Friction enabled</span><input type="checkbox" id="setFriction"></div>
+            <div class="set-title">DISPLAY</div>
+            <div class="set-row"><span>Dark theme</span><input type="checkbox" id="setDarkTheme"></div>
+            <div class="set-row"><span>Grid</span><input type="checkbox" id="setGrid"></div>
+            <div class="set-row"><span>Velocity vectors</span><input type="checkbox" id="setVectors"></div>
+            <div class="set-row"><span>Motion trails</span><input type="checkbox" id="setTrails"></div>
+            <div class="set-row"><span>Energy panel</span><input type="checkbox" id="setData"></div>
+            <div class="set-title">SCENE</div>
+            <div class="set-row"><span>Background color</span><input type="color" id="setBackgroundColor" value="#dfe4e5"></div>
+            <div class="set-row"><span>Background image</span><label class="file-btn">CHOOSE IMAGE<input type="file" id="setBackgroundImage" accept="image/*"></label></div>
+            <p class="note">Images up to 2 MB. Choosing a color clears the image.</p>
+            <p class="note">Gravity, drag and the friction switch are saved with each simulation.</p>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ======================================================================
+     PHYSICS ENGINE  (no DOM access in here)
+     ====================================================================== -->
+<script>
+// ===== ENGINE START =====
+const S = { gravity: 9.81, airDrag: 0, timeScale: 1, friction: true };
+const H = 1 / 240, ITER = 8, BETA = 0.2, SLOP = 0.005;
+const DEG = Math.PI / 180;
+const DEFAULT_SCENE_BACKGROUND = '#dfe4e5';
+
+let bodies = [], joints = [], nextId = 1, simTime = 0, stepCount = 0;
+let contacts = [], contactCache = new Map();
+let trailsOn = false;
+let sceneBackground = { color: DEFAULT_SCENE_BACKGROUND, image: '' };
+let sceneBackgroundImage = null;
+const mouseJ = { body: null, lx: 0, ly: 0, tx: 0, ty: 0 };
+const DUMMY = { x: 0, y: 0, vx: 0, vy: 0, w: 0, invMass: 0, invI: 0 };
+
+/* ---------- geometry helpers ---------- */
+
+function rectVerts(w, h) {
+    const a = w / 2, b = h / 2;
+    return [{ x: -a, y: -b }, { x: a, y: -b }, { x: a, y: b }, { x: -a, y: b }];
+}
+
+function regVerts(n, r, rot) {
+    const v = [];
+    for (let i = 0; i < n; i++) {
+        const t = (rot || 0) + i * 2 * Math.PI / n;
+        v.push({ x: Math.cos(t) * r, y: Math.sin(t) * r });
+    }
+    return v;
+}
+
+function polyCentroid(v) {
+    let a = 0, cx = 0, cy = 0;
+    for (let i = 0; i < v.length; i++) {
+        const p = v[i], q = v[(i + 1) % v.length];
+        const cr = p.x * q.y - q.x * p.y;
+        a += cr; cx += (p.x + q.x) * cr; cy += (p.y + q.y) * cr;
+    }
+    a *= 0.5;
+    if (Math.abs(a) < 1e-12) return { x: 0, y: 0, area: 0 };
+    return { x: cx / (6 * a), y: cy / (6 * a), area: Math.abs(a) };
+}
+
+function polyInertiaPerMass(v) {
+    let num = 0, den = 0;
+    for (let i = 0; i < v.length; i++) {
+        const p = v[i], q = v[(i + 1) % v.length];
+        const cr = p.x * q.y - q.x * p.y;
+        num += cr * (p.x * p.x + p.y * p.y + p.x * q.x + p.y * q.y + q.x * q.x + q.y * q.y);
+        den += cr;
+    }
+    return Math.abs(num / (6 * den)) || 0.1;
+}
+
+function convexHull(p) {
+    const pts = p.map(q => ({ x: q.x, y: q.y })).sort((a, b) => a.x - b.x || a.y - b.y);
+    if (pts.length < 3) return pts;
+    const cr = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    const lo = [];
+    for (const q of pts) {
+        while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop();
+        lo.push(q);
+    }
+    const up = [];
+    for (let i = pts.length - 1; i >= 0; i--) {
+        const q = pts[i];
+        while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop();
+        up.push(q);
+    }
+    lo.pop(); up.pop();
+    return lo.concat(up);
+}
+
+function localBounds(b) {
+    if (b.shape === 'circle') return { w: b.r * 2, h: b.r * 2 };
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const v of b.verts) { x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); }
+    return { w: x1 - x0, h: y1 - y0 };
+}
+
+/* ---------- bodies ---------- */
+
+function createBody(o) {
+    const b = {
+        id: o.id != null ? o.id : nextId++,
+        name: o.name || (o.shape === 'circle' ? 'Circle' : 'Shape'),
+        shape: o.shape || 'poly', r: o.r || 0.5, verts: null,
+        x: o.x || 0, y: o.y || 0, angle: o.angle || 0,
+        vx: o.vx || 0, vy: o.vy || 0, w: o.w || 0,
+        mass: 1, invMass: 0, invI: 0, iPerMass: 0.5, area: 1, bound: 1,
+        static: !!o.static,
+        restitution: o.restitution != null ? o.restitution : 0.2,
+        friction: o.friction != null ? o.friction : 0.5,
+        frictionOn: o.frictionOn !== false,
+        color: o.color || '#779bb0',
+        fx: o.fx || 0, fy: o.fy || 0, group: o.group || 0,
+        hollow: !!o.hollow, isGround: !!o.isGround,
+        trail: [], wv: null, wn: null, minX: 0, maxX: 0, minY: 0, maxY: 0
+    };
+    if (o.id != null && o.id >= nextId) nextId = o.id + 1;
+
+    if (b.shape === 'poly') {
+        let v = o.verts.map(p => ({ x: p.x, y: p.y }));
+        if (!o.exact) {
+            const c = polyCentroid(v);
+            v = v.map(p => ({ x: p.x - c.x, y: p.y - c.y }));
+            if (!o.keepPos) {
+                const cs = Math.cos(b.angle), sn = Math.sin(b.angle);
+                b.x += c.x * cs - c.y * sn;
+                b.y += c.x * sn + c.y * cs;
+            }
+        }
+        b.verts = v;
+    }
+    shapeProps(b);
+    b.mass = o.mass != null ? o.mass : b.area * (o.density != null ? o.density : 1);
+    if (!(b.mass > 0)) b.mass = 1;
+    if (b.static) { b.vx = b.vy = b.w = 0; }
+    applyMass(b);
+    updateGeom(b);
+    bodies.push(b);
+    return b;
+}
+
+function shapeProps(b) {
+    if (b.shape === 'circle') {
+        b.area = Math.PI * b.r * b.r;
+        b.iPerMass = b.hollow ? b.r * b.r : 0.5 * b.r * b.r;
+        b.bound = b.r;
+    } else {
+        b.area = polyCentroid(b.verts).area;
+        b.iPerMass = polyInertiaPerMass(b.verts);
+        let m = 0;
+        for (const v of b.verts) m = Math.max(m, Math.hypot(v.x, v.y));
+        b.bound = m;
+        b.wv = null; b.wn = null;
+    }
+}
+
+function applyMass(b) {
+    if (b.static) { b.invMass = 0; b.invI = 0; }
+    else { b.invMass = 1 / b.mass; b.invI = 1 / (b.mass * b.iPerMass); }
+}
+
+function setRadius(b, r) { b.r = Math.max(0.05, r); shapeProps(b); applyMass(b); updateGeom(b); }
+
+function setPolySize(b, axis, v) {
+    const bb = localBounds(b);
+    const cur = axis === 'x' ? bb.w : bb.h;
+    if (!(cur > 1e-6) || !(v > 0.05)) return;
+    const k = v / cur;
+    for (const p of b.verts) { if (axis === 'x') p.x *= k; else p.y *= k; }
+    shapeProps(b); applyMass(b); updateGeom(b);
+}
+
+function updateGeom(b) {
+    if (b.shape === 'circle') {
+        b.minX = b.x - b.r; b.maxX = b.x + b.r; b.minY = b.y - b.r; b.maxY = b.y + b.r;
+        return;
+    }
+    const n = b.verts.length;
+    if (!b.wv || b.wv.length !== n) {
+        b.wv = []; b.wn = [];
+        for (let i = 0; i < n; i++) { b.wv.push({ x: 0, y: 0 }); b.wn.push({ x: 0, y: 0 }); }
+    }
+    const c = Math.cos(b.angle), s = Math.sin(b.angle);
+    let mnx = 1e18, mxx = -1e18, mny = 1e18, mxy = -1e18;
+    for (let i = 0; i < n; i++) {
+        const v = b.verts[i], p = b.wv[i];
+        p.x = b.x + c * v.x - s * v.y;
+        p.y = b.y + s * v.x + c * v.y;
+        if (p.x < mnx) mnx = p.x; if (p.x > mxx) mxx = p.x;
+        if (p.y < mny) mny = p.y; if (p.y > mxy) mxy = p.y;
+    }
+    for (let i = 0; i < n; i++) {
+        const p = b.wv[i], q = b.wv[(i + 1) % n];
+        const ex = q.x - p.x, ey = q.y - p.y;
+        const l = Math.hypot(ex, ey) || 1;
+        let nx = ey / l, ny = -ex / l;
+        if ((p.x - b.x) * nx + (p.y - b.y) * ny < 0) { nx = -nx; ny = -ny; }
+        b.wn[i].x = nx; b.wn[i].y = ny;
+    }
+    b.minX = mnx; b.maxX = mxx; b.minY = mny; b.maxY = mxy;
+}
+
+function localPoint(b, wx, wy) {
+    const dx = wx - b.x, dy = wy - b.y, c = Math.cos(b.angle), s = Math.sin(b.angle);
+    return { x: c * dx + s * dy, y: -s * dx + c * dy };
+}
+
+/* ---------- joints ---------- */
+
+function jPoints(j) {
+    const a = j.a, ca = Math.cos(a.angle), sa = Math.sin(a.angle);
+    const pa = { x: a.x + ca * j.la.x - sa * j.la.y, y: a.y + sa * j.la.x + ca * j.la.y };
+    let pb;
+    if (j.b) {
+        const b = j.b, cb = Math.cos(b.angle), sb = Math.sin(b.angle);
+        pb = { x: b.x + cb * j.lb.x - sb * j.lb.y, y: b.y + sb * j.lb.x + cb * j.lb.y };
+    } else pb = { x: j.wp.x, y: j.wp.y };
+    return [pa, pb];
+}
+
+function addJoint(type, a, la, b, lb, wp, opt) {
+    const j = {
+        id: nextId++, type, a, la: { x: la.x, y: la.y },
+        b: b || null, lb: b ? { x: lb.x, y: lb.y } : { x: 0, y: 0 },
+        wp: b ? null : { x: wp.x, y: wp.y },
+        length: 0, rest: 0, k: 50, damp: 0.5, acc: 0, accx: 0, accy: 0, force: 0
+    };
+    const pts = jPoints(j);
+    const d = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+    if (type === 'spring') { j.rest = d; j.length = d; }
+    else if (type === 'rod') { j.length = d; }
+    if (opt) Object.assign(j, opt);
+    joints.push(j);
+    return j;
+}
+
+/* ---------- collision detection ---------- */
+
+function circleCircle(A, B) {
+    const dx = B.x - A.x, dy = B.y - A.y, rs = A.r + B.r, d2 = dx * dx + dy * dy;
+    if (d2 >= rs * rs) return null;
+    const d = Math.sqrt(d2);
+    let nx = 0, ny = 1;
+    if (d > 1e-9) { nx = dx / d; ny = dy / d; }
+    const depth = rs - d;
+    return { nx, ny, pts: [{ x: A.x + nx * (A.r - depth / 2), y: A.y + ny * (A.r - depth / 2), depth }] };
+}
+
+// normal points from polygon P toward circle C
+function circlePoly(C, P) {
+    const n = P.wv.length;
+    let best = -Infinity, bi = 0;
+    for (let i = 0; i < n; i++) {
+        const s = (C.x - P.wv[i].x) * P.wn[i].x + (C.y - P.wv[i].y) * P.wn[i].y;
+        if (s > C.r) return null;
+        if (s > best) { best = s; bi = i; }
+    }
+    const v1 = P.wv[bi], v2 = P.wv[(bi + 1) % n], nrm = P.wn[bi];
+    if (best < 0) {
+        return { nx: nrm.x, ny: nrm.y, depth: C.r - best, x: C.x - nrm.x * C.r, y: C.y - nrm.y * C.r };
+    }
+    const ex = v2.x - v1.x, ey = v2.y - v1.y;
+    const d1 = (C.x - v1.x) * ex + (C.y - v1.y) * ey;
+    let vert = null;
+    if (d1 <= 0) vert = v1;
+    else {
+        const d2 = (C.x - v2.x) * ex + (C.y - v2.y) * ey;
+        if (d2 >= 0) vert = v2;
+    }
+    if (vert) {
+        const dx = C.x - vert.x, dy = C.y - vert.y, d = Math.hypot(dx, dy);
+        if (d > C.r) return null;
+        if (d < 1e-9) return { nx: nrm.x, ny: nrm.y, depth: C.r, x: vert.x, y: vert.y };
+        return { nx: dx / d, ny: dy / d, depth: C.r - d, x: vert.x, y: vert.y };
+    }
+    return { nx: nrm.x, ny: nrm.y, depth: C.r - best, x: C.x - nrm.x * C.r, y: C.y - nrm.y * C.r };
+}
+
+function sepAxis(A, B) {
+    let best = -Infinity, bi = 0;
+    const na = A.wv.length;
+    for (let i = 0; i < na; i++) {
+        const n = A.wn[i], p = A.wv[i];
+        let minD = Infinity;
+        for (let k = 0; k < B.wv.length; k++) {
+            const v = B.wv[k];
+            const d = (v.x - p.x) * n.x + (v.y - p.y) * n.y;
+            if (d < minD) minD = d;
+        }
+        if (minD > best) { best = minD; bi = i; }
+    }
+    return { sep: best, idx: bi };
+}
+
+function clipSeg(p, nx, ny, c) {
+    const d1 = p[0].x * nx + p[0].y * ny - c;
+    const d2 = p[1].x * nx + p[1].y * ny - c;
+    const out = [];
+    if (d1 >= 0) out.push(p[0]);
+    if (d2 >= 0) out.push(p[1]);
+    if (d1 * d2 < 0) {
+        const t = d1 / (d1 - d2);
+        out.push({ x: p[0].x + (p[1].x - p[0].x) * t, y: p[0].y + (p[1].y - p[0].y) * t });
+    }
+    return out;
+}
+
+function polyPoly(A, B) {
+    const sa = sepAxis(A, B);
+    if (sa.sep > 0) return null;
+    const sb = sepAxis(B, A);
+    if (sb.sep > 0) return null;
+    let ref, inc, idx, flip;
+    if (sb.sep > sa.sep + 1e-4) { ref = B; inc = A; idx = sb.idx; flip = true; }
+    else { ref = A; inc = B; idx = sa.idx; flip = false; }
+    const n = ref.wn[idx];
+    let ii = 0, minDot = Infinity;
+    for (let j = 0; j < inc.wn.length; j++) {
+        const d = n.x * inc.wn[j].x + n.y * inc.wn[j].y;
+        if (d < minDot) { minDot = d; ii = j; }
+    }
+    const i1 = inc.wv[ii], i2 = inc.wv[(ii + 1) % inc.wv.length];
+    const r1 = ref.wv[idx], r2 = ref.wv[(idx + 1) % ref.wv.length];
+    let tx = r2.x - r1.x, ty = r2.y - r1.y;
+    const tl = Math.hypot(tx, ty) || 1;
+    tx /= tl; ty /= tl;
+    let pts = [{ x: i1.x, y: i1.y }, { x: i2.x, y: i2.y }];
+    pts = clipSeg(pts, tx, ty, tx * r1.x + ty * r1.y);
+    if (pts.length < 2) return null;
+    pts = clipSeg(pts, -tx, -ty, -(tx * r2.x + ty * r2.y));
+    if (pts.length < 2) return null;
+    const out = [];
+    for (const p of pts) {
+        const depth = -((p.x - r1.x) * n.x + (p.y - r1.y) * n.y);
+        if (depth >= 0) out.push({ x: p.x, y: p.y, depth });
+    }
+    if (!out.length) return null;
+    return { nx: flip ? -n.x : n.x, ny: flip ? -n.y : n.y, pts: out };
+}
+
+function collide(A, B) {
+    if (A.shape === 'circle' && B.shape === 'circle') return circleCircle(A, B);
+    if (A.shape === 'circle') {
+        const m = circlePoly(A, B);
+        if (!m) return null;
+        return { nx: -m.nx, ny: -m.ny, pts: [{ x: m.x, y: m.y, depth: m.depth }] };
+    }
+    if (B.shape === 'circle') {
+        const m = circlePoly(B, A);
+        if (!m) return null;
+        return { nx: m.nx, ny: m.ny, pts: [{ x: m.x, y: m.y, depth: m.depth }] };
+    }
+    return polyPoly(A, B);
+}
+
+/* ---------- solver ---------- */
+
+function applyImp(A, B, rax, ray, rbx, rby, px, py) {
+    A.vx -= px * A.invMass; A.vy -= py * A.invMass; A.w -= A.invI * (rax * py - ray * px);
+    B.vx += px * B.invMass; B.vy += py * B.invMass; B.w += B.invI * (rbx * py - rby * px);
+}
+
+function applyForces(h) {
+    const g = S.gravity;
+    const damp = S.airDrag > 0 ? Math.max(0, 1 - S.airDrag * h) : 1;
+    for (const b of bodies) {
+        if (b.invMass === 0) continue;
+        b.vy += g * h;
+        if (b.fx || b.fy) { b.vx += b.fx * b.invMass * h; b.vy += b.fy * b.invMass * h; }
+        if (damp !== 1) { b.vx *= damp; b.vy *= damp; b.w *= damp; }
+    }
+    for (const j of joints) {
+        if (j.type !== 'spring') continue;
+        const a = j.a, b = j.b || DUMMY;
+        const pts = jPoints(j), pa = pts[0], pb = pts[1];
+        const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy);
+        if (len < 1e-9) { j.force = 0; continue; }
+        const nx = dx / len, ny = dy / len;
+        const rax = pa.x - a.x, ray = pa.y - a.y;
+        const rbx = j.b ? pb.x - b.x : 0, rby = j.b ? pb.y - b.y : 0;
+        const vax = a.vx - a.w * ray, vay = a.vy + a.w * rax;
+        const vbx = b.vx - b.w * rby, vby = b.vy + b.w * rbx;
+        const rel = (vbx - vax) * nx + (vby - vay) * ny;
+        const F = j.k * (len - j.rest) + j.damp * rel;
+        j.force = j.k * (len - j.rest);
+        const fx = F * nx, fy = F * ny;
+        a.vx += fx * a.invMass * h; a.vy += fy * a.invMass * h; a.w += (rax * fy - ray * fx) * a.invI * h;
+        if (j.b) { b.vx -= fx * b.invMass * h; b.vy -= fy * b.invMass * h; b.w -= (rbx * fy - rby * fx) * b.invI * h; }
+    }
+}
+
+function buildContacts() {
+    contacts.length = 0;
+    const noCol = new Set();
+    for (const j of joints) if (j.type === 'pin' && j.b) noCol.add(j.a.id < j.b.id ? j.a.id + '_' + j.b.id : j.b.id + '_' + j.a.id);
+    for (const b of bodies) updateGeom(b);
+    const n = bodies.length;
+    for (let i = 0; i < n; i++) {
+        const A = bodies[i];
+        for (let k = i + 1; k < n; k++) {
+            const B = bodies[k];
+            if (A.invMass === 0 && B.invMass === 0) continue;
+            if (A.maxX < B.minX || B.maxX < A.minX || A.maxY < B.minY || B.maxY < A.minY) continue;
+            if (A.group && A.group === B.group) continue;
+            if (noCol.size && noCol.has(A.id < B.id ? A.id + '_' + B.id : B.id + '_' + A.id)) continue;
+            const m = collide(A, B);
+            if (!m) continue;
+            const mu = (S.friction && A.frictionOn && B.frictionOn) ? Math.min(A.friction, B.friction) : 0;
+            const e = Math.max(A.restitution, B.restitution);
+            for (let q = 0; q < m.pts.length; q++) {
+                const p = m.pts[q];
+                contacts.push({ A, B, nx: m.nx, ny: m.ny, px: p.x, py: p.y, depth: p.depth, mu, e, key: A.id + '_' + B.id + '_' + q, jn: 0, jt: 0 });
+            }
+        }
+    }
+}
+
+function prepareContacts(h) {
+    const cache = new Map();
+    for (const c of contacts) {
+        const A = c.A, B = c.B;
+        c.rax = c.px - A.x; c.ray = c.py - A.y; c.rbx = c.px - B.x; c.rby = c.py - B.y;
+        const rnA = c.rax * c.ny - c.ray * c.nx, rnB = c.rbx * c.ny - c.rby * c.nx;
+        c.massN = 1 / (A.invMass + B.invMass + rnA * rnA * A.invI + rnB * rnB * B.invI);
+        c.tx = -c.ny; c.ty = c.nx;
+        const rtA = c.rax * c.ty - c.ray * c.tx, rtB = c.rbx * c.ty - c.rby * c.tx;
+        c.massT = 1 / (A.invMass + B.invMass + rtA * rtA * A.invI + rtB * rtB * B.invI);
+        const dvx = (B.vx - B.w * c.rby) - (A.vx - A.w * c.ray);
+        const dvy = (B.vy + B.w * c.rbx) - (A.vy + A.w * c.rax);
+        const vn = dvx * c.nx + dvy * c.ny;
+        let target = Math.min(2, BETA / h * Math.max(0, c.depth - SLOP));
+        if (vn < -1) target = Math.max(target, -c.e * vn);
+        c.target = target;
+        const prev = contactCache.get(c.key);
+        if (prev) {
+            c.jn = prev.jn; c.jt = prev.jt;
+            applyImp(A, B, c.rax, c.ray, c.rbx, c.rby, c.jn * c.nx + c.jt * c.tx, c.jn * c.ny + c.jt * c.ty);
+        }
+        cache.set(c.key, c);
+    }
+    contactCache = cache;
+}
+
+function prepareJoints(h) {
+    for (const j of joints) {
+        j.skip = false;
+        if (j.type === 'spring') continue;
+        const A = j.a, B = j.b || DUMMY;
+        if (A.invMass === 0 && B.invMass === 0) { j.skip = true; continue; }
+        const ca = Math.cos(A.angle), sa = Math.sin(A.angle);
+        j.rax = ca * j.la.x - sa * j.la.y; j.ray = sa * j.la.x + ca * j.la.y;
+        const pax = A.x + j.rax, pay = A.y + j.ray;
+        let pbx, pby;
+        if (j.b) {
+            const cb = Math.cos(B.angle), sb = Math.sin(B.angle);
+            j.rbx = cb * j.lb.x - sb * j.lb.y; j.rby = sb * j.lb.x + cb * j.lb.y;
+            pbx = B.x + j.rbx; pby = B.y + j.rby;
+        } else { pbx = j.wp.x; pby = j.wp.y; j.rbx = 0; j.rby = 0; }
+        j.cx = pbx - pax; j.cy = pby - pay;
+        if (j.type === 'rod') {
+            const len = Math.hypot(j.cx, j.cy) || 1e-9;
+            j.nx = j.cx / len; j.ny = j.cy / len;
+            j.bias = BETA / h * (len - j.length);
+            const rnA = j.rax * j.ny - j.ray * j.nx, rnB = j.rbx * j.ny - j.rby * j.nx;
+            const k = A.invMass + B.invMass + rnA * rnA * A.invI + rnB * rnB * B.invI;
+            j.mass = k > 0 ? 1 / k : 0;
+        } else {
+            const iA = A.invMass, iB = B.invMass, wA = A.invI, wB = B.invI;
+            const k11 = iA + iB + j.ray * j.ray * wA + j.rby * j.rby * wB;
+            const k12 = -j.rax * j.ray * wA - j.rbx * j.rby * wB;
+            const k22 = iA + iB + j.rax * j.rax * wA + j.rbx * j.rbx * wB;
+            const det = k11 * k22 - k12 * k12;
+            if (Math.abs(det) < 1e-12) { j.skip = true; continue; }
+            j.i11 = k22 / det; j.i12 = -k12 / det; j.i22 = k11 / det;
+            j.bx = BETA / h * j.cx; j.by = BETA / h * j.cy;
+        }
+    }
+    const m = mouseJ;
+    m.active = false;
+    if (m.body && m.body.invMass > 0) {
+        const b = m.body, c = Math.cos(b.angle), s = Math.sin(b.angle);
+        m.rax = c * m.lx - s * m.ly; m.ray = s * m.lx + c * m.ly;
+        m.cx = b.x + m.rax - m.tx; m.cy = b.y + m.ray - m.ty;
+        const om = 2 * Math.PI * 6, M = b.mass;
+        const d = 2 * M * 0.7 * om, k = M * om * om;
+        let gam = h * (d + h * k);
+        gam = gam > 0 ? 1 / gam : 0;
+        m.gamma = gam; m.beta = h * k * gam;
+        const k11 = b.invMass + b.invI * m.ray * m.ray + gam;
+        const k12 = -b.invI * m.rax * m.ray;
+        const k22 = b.invMass + b.invI * m.rax * m.rax + gam;
+        const det = k11 * k22 - k12 * k12;
+        m.i11 = k22 / det; m.i12 = -k12 / det; m.i22 = k11 / det;
+        m.accx = 0; m.accy = 0; m.maxImp = M * h * 1800;
+        m.active = true;
+    }
+}
+
+function solveJoints() {
+    for (const j of joints) {
+        if (j.type === 'spring' || j.skip) continue;
+        const A = j.a, B = j.b || DUMMY;
+        const dvx = (B.vx - B.w * j.rby) - (A.vx - A.w * j.ray);
+        const dvy = (B.vy + B.w * j.rbx) - (A.vy + A.w * j.rax);
+        if (j.type === 'rod') {
+            const lam = -j.mass * (dvx * j.nx + dvy * j.ny + j.bias);
+            applyImp(A, B, j.rax, j.ray, j.rbx, j.rby, lam * j.nx, lam * j.ny);
+        } else {
+            const rx = -(dvx + j.bx), ry = -(dvy + j.by);
+            applyImp(A, B, j.rax, j.ray, j.rbx, j.rby, j.i11 * rx + j.i12 * ry, j.i12 * rx + j.i22 * ry);
+        }
+    }
+    const m = mouseJ;
+    if (m.active) {
+        const b = m.body;
+        const cdx = b.vx - b.w * m.ray, cdy = b.vy + b.w * m.rax;
+        const rx = -(cdx + m.beta * m.cx + m.gamma * m.accx);
+        const ry = -(cdy + m.beta * m.cy + m.gamma * m.accy);
+        let px = m.i11 * rx + m.i12 * ry, py = m.i12 * rx + m.i22 * ry;
+        let nx = m.accx + px, ny = m.accy + py;
+        const mag = Math.hypot(nx, ny);
+        if (mag > m.maxImp) { nx *= m.maxImp / mag; ny *= m.maxImp / mag; }
+        px = nx - m.accx; py = ny - m.accy;
+        m.accx = nx; m.accy = ny;
+        b.vx += px * b.invMass; b.vy += py * b.invMass;
+        b.w += b.invI * (m.rax * py - m.ray * px);
+    }
+}
+
+function solveContacts() {
+    for (const c of contacts) {
+        const A = c.A, B = c.B;
+        let dvx = (B.vx - B.w * c.rby) - (A.vx - A.w * c.ray);
+        let dvy = (B.vy + B.w * c.rbx) - (A.vy + A.w * c.rax);
+        const vn = dvx * c.nx + dvy * c.ny;
+        let lam = c.massN * (c.target - vn);
+        const nj = Math.max(c.jn + lam, 0);
+        lam = nj - c.jn; c.jn = nj;
+        applyImp(A, B, c.rax, c.ray, c.rbx, c.rby, lam * c.nx, lam * c.ny);
+
+        dvx = (B.vx - B.w * c.rby) - (A.vx - A.w * c.ray);
+        dvy = (B.vy + B.w * c.rbx) - (A.vy + A.w * c.rax);
+        const vt = dvx * c.tx + dvy * c.ty;
+        let lt = -c.massT * vt;
+        const maxF = c.mu * c.jn;
+        const nt = Math.max(-maxF, Math.min(maxF, c.jt + lt));
+        lt = nt - c.jt; c.jt = nt;
+        applyImp(A, B, c.rax, c.ray, c.rbx, c.rby, lt * c.tx, lt * c.ty);
+    }
+}
+
+function step(h) {
+    applyForces(h);
+    buildContacts();
+    prepareContacts(h);
+    prepareJoints(h);
+    for (let it = 0; it < ITER; it++) { solveJoints(); solveContacts(); }
+    for (const b of bodies) {
+        if (b.invMass === 0) continue;
+        b.x += b.vx * h; b.y += b.vy * h; b.angle += b.w * h;
+    }
+    simTime += h;
+    stepCount++;
+    if (trailsOn && stepCount % 8 === 0) {
+        for (const b of bodies) {
+            if (b.invMass === 0) continue;
+            b.trail.push(b.x, b.y);
+            if (b.trail.length > 50) b.trail.splice(0, 2);
+        }
+    }
+}
+
+function energy() {
+    let ke = 0, pe = 0, se = 0, px = 0, py = 0;
+    for (const b of bodies) {
+        if (b.static) continue;
+        ke += 0.5 * b.mass * (b.vx * b.vx + b.vy * b.vy) + 0.5 * b.mass * b.iPerMass * b.w * b.w;
+        pe += b.mass * S.gravity * (-b.y);
+        px += b.mass * b.vx; py += b.mass * b.vy;
+    }
+    for (const j of joints) {
+        if (j.type !== 'spring') continue;
+        const p = jPoints(j), len = Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y);
+        se += 0.5 * j.k * (len - j.rest) * (len - j.rest);
+    }
+    return { ke, pe, se, px, py, total: ke + pe + se };
+}
+
+/* ---------- scene (de)serialization ---------- */
+
+function clearWorld() {
+    bodies = []; joints = []; contacts = []; contactCache = new Map();
+    mouseJ.body = null; simTime = 0; stepCount = 0;
+}
+
+function bodyData(b) {
+    return {
+        id: b.id, name: b.name, shape: b.shape, r: b.r,
+        verts: b.verts ? b.verts.map(v => ({ x: v.x, y: v.y })) : null,
+        x: b.x, y: b.y, angle: b.angle, vx: b.vx, vy: b.vy, w: b.w,
+        mass: b.mass, static: b.static, restitution: b.restitution,
+        friction: b.friction, frictionOn: b.frictionOn, color: b.color,
+        fx: b.fx, fy: b.fy, group: b.group, hollow: b.hollow, isGround: b.isGround
+    };
+}
+
+function serialize() {
+    return {
+        v: 1, gravity: S.gravity, airDrag: S.airDrag, friction: S.friction, time: simTime, nextId,
+        background: { color: sceneBackground.color, image: sceneBackground.image },
+        bodies: bodies.map(bodyData),
+        joints: joints.map(j => ({
+            id: j.id, type: j.type, a: j.a.id, b: j.b ? j.b.id : null,
+            la: { x: j.la.x, y: j.la.y }, lb: { x: j.lb.x, y: j.lb.y },
+            wp: j.wp ? { x: j.wp.x, y: j.wp.y } : null,
+            length: j.length, rest: j.rest, k: j.k, damp: j.damp
+        }))
+    };
+}
+
+function deserialize(d) {
+    clearWorld();
+    S.gravity = d.gravity != null ? d.gravity : 9.81;
+    S.airDrag = d.airDrag || 0;
+    S.friction = d.friction !== false;
+    sceneBackground.color = d.background && /^#[0-9a-f]{6}$/i.test(d.background.color) ? d.background.color : DEFAULT_SCENE_BACKGROUND;
+    setSceneBackgroundImage(d.background && d.background.image ? d.background.image : '');
+    for (const bd of d.bodies || []) createBody(Object.assign({}, bd, { exact: true }));
+    const map = new Map(bodies.map(b => [b.id, b]));
+    for (const jd of d.joints || []) {
+        const a = map.get(jd.a);
+        const b = jd.b != null ? map.get(jd.b) : null;
+        if (!a || (jd.b != null && !b)) continue;
+        const j = addJoint(jd.type, a, jd.la, b, jd.lb, jd.wp, { length: jd.length, rest: jd.rest, k: jd.k, damp: jd.damp });
+        j.id = jd.id;
+    }
+    nextId = Math.max(nextId, d.nextId || 0);
+    simTime = d.time || 0;
+}
+
+/* ---------- object library ---------- */
+
+const COL = { blue: '#779bb0', tan: '#d3a184', gray: '#a5aeb2', green: '#7fae8b', red: '#c9776d', gold: '#e0b85c', purple: '#9a88b8', dark: '#5d6b73', ice: '#bfe3f2', static: '#8f9ca2' };
+
+function G() {
+    return createBody({ name: 'Ground', verts: rectVerts(4000, 10), x: 0, y: 5, static: true, friction: 1, restitution: 0, color: '#a9b3b8', isGround: true });
+}
+function box(x, up, w, h, o) {
+    return createBody(Object.assign({ name: 'Box', verts: rectVerts(w, h), x: x, y: -up, color: COL.tan, friction: 0.5, restitution: 0.2 }, o));
+}
+function ball(x, up, r, o) {
+    return createBody(Object.assign({ name: 'Ball', shape: 'circle', r: r, x: x, y: -up, color: COL.blue, friction: 0.5, restitution: 0.3 }, o));
+}
+function slab(x, up, w, h, o) {
+    return box(x, up, w, h, Object.assign({ name: 'Platform', static: true, friction: 1, restitution: 0, color: '#9aa5aa' }, o));
+}
+function lp(b, wx, wup) { return localPoint(b, wx, -wup); }
+function wedge(pts, o) {
+    return createBody(Object.assign({ name: 'Ramp', verts: pts.map(p => ({ x: p[0], y: -p[1] })), static: true, friction: 1, restitution: 0, color: '#9aa5aa' }, o));
+}
+
+function mkObj(cat, id, name, desc, spec) {
+    spec.key = id; spec.name = name;
+    return { cat, id, name, desc, spec };
+}
+
+const OBJECTS = [
+    mkObj('Shapes', 'box', 'Box', '1 m square, 1 kg.', { shape: 'poly', verts: rectVerts(1, 1), density: 1, friction: 0.5, restitution: 0.2, color: '#a5aeb2' }),
+    mkObj('Shapes', 'circle', 'Circle', 'Disk of radius 0.5 m.', { shape: 'circle', r: 0.5, density: 1, friction: 0.5, restitution: 0.3, color: '#779bb0' }),
+    mkObj('Shapes', 'triangle', 'Triangle', 'Equilateral triangle.', { shape: 'poly', verts: regVerts(3, 0.75, -Math.PI / 2), density: 1, friction: 0.5, restitution: 0.2, color: '#c9776d' }),
+    mkObj('Shapes', 'plank', 'Plank', '3 m long, thin. Good for seesaws and levers.', { shape: 'poly', verts: rectVerts(3, 0.25), density: 2, friction: 0.5, restitution: 0.1, color: '#d3a184' }),
+    mkObj('Shapes', 'smallball', 'Small ball', 'Radius 0.25 m.', { shape: 'circle', r: 0.25, density: 2, friction: 0.5, restitution: 0.4, color: '#e0b85c' }),
+    mkObj('Shapes', 'bigball', 'Large ball', 'Radius 1 m.', { shape: 'circle', r: 1, density: 1, friction: 0.5, restitution: 0.3, color: '#9a88b8' }),
+    mkObj('Shapes', 'bigbox', 'Large box', '2 m square, 4 kg.', { shape: 'poly', verts: rectVerts(2, 2), density: 1, friction: 0.5, restitution: 0.2, color: '#7fae8b' }),
+    mkObj('Shapes', 'tallrect', 'Tall block', '0.4 × 2 m. Tips over easily.', { shape: 'poly', verts: rectVerts(0.4, 2), density: 1, friction: 0.5, restitution: 0.1, color: '#d3a184' }),
+    mkObj('Shapes', 'cart', 'Cart', '2 × 0.8 m, frictionless underside.', { shape: 'poly', verts: rectVerts(2, 0.8), density: 1.5, friction: 0.5, frictionOn: false, restitution: 0.2, color: '#779bb0' }),
+    mkObj('Shapes', 'righttri', 'Right triangle', 'A wedge that can move.', { shape: 'poly', verts: [{ x: -0.7, y: 0.7 }, { x: 0.7, y: 0.7 }, { x: -0.7, y: -0.7 }], density: 1, friction: 0.5, restitution: 0.2, color: '#9a88b8' }),
+    mkObj('Shapes', 'pentagon', 'Pentagon', 'Regular 5-gon.', { shape: 'poly', verts: regVerts(5, 0.7, -Math.PI / 2), density: 1, friction: 0.5, restitution: 0.2, color: '#7fae8b' }),
+    mkObj('Shapes', 'hexagon', 'Hexagon', 'Regular 6-gon.', { shape: 'poly', verts: regVerts(6, 0.7, 0), density: 1, friction: 0.5, restitution: 0.2, color: '#e0b85c' }),
+    mkObj('Shapes', 'octagon', 'Octagon', 'Almost a wheel.', { shape: 'poly', verts: regVerts(8, 0.7, Math.PI / 8), density: 1, friction: 0.5, restitution: 0.2, color: '#779bb0' }),
+    mkObj('Shapes', 'trapezoid', 'Trapezoid', 'Wide base, narrow top.', { shape: 'poly', verts: [{ x: -1, y: 0.4 }, { x: 1, y: 0.4 }, { x: 0.5, y: -0.4 }, { x: -0.5, y: -0.4 }], density: 1, friction: 0.5, restitution: 0.2, color: '#c9776d' }),
+
+    mkObj('Surfaces & Ramps', 'ramp15', 'Ramp 15°', 'Static wedge, 6 m long.', { shape: 'poly', verts: [{ x: 0, y: 0 }, { x: 6, y: 0 }, { x: 6, y: -6 * Math.tan(15 * DEG) }], static: true, friction: 1, restitution: 0, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'ramp30', 'Ramp 30°', 'Static wedge, 6 m long.', { shape: 'poly', verts: [{ x: 0, y: 0 }, { x: 6, y: 0 }, { x: 6, y: -6 * Math.tan(30 * DEG) }], static: true, friction: 1, restitution: 0, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'ramp45', 'Ramp 45°', 'Static wedge, 4 m long.', { shape: 'poly', verts: [{ x: 0, y: 0 }, { x: 4, y: 0 }, { x: 4, y: -4 }], static: true, friction: 1, restitution: 0, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'platform', 'Platform', 'Static slab, 6 m wide.', { shape: 'poly', verts: rectVerts(6, 0.4), static: true, friction: 1, restitution: 0, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'wall', 'Wall', 'Static wall, 4 m tall.', { shape: 'poly', verts: rectVerts(0.5, 4), static: true, friction: 0.5, restitution: 0.3, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'anchorblock', 'Anchor block', 'Static 1 m block for attaching springs.', { shape: 'poly', verts: rectVerts(1, 1), static: true, friction: 0.5, restitution: 0.2, color: '#8f9ca2' }),
+    mkObj('Surfaces & Ramps', 'icepad', 'Ice platform', 'Static, practically frictionless.', { shape: 'poly', verts: rectVerts(6, 0.4), static: true, friction: 0.01, restitution: 0, color: '#bfe3f2' }),
+    mkObj('Surfaces & Ramps', 'bouncepad', 'Bounce pad', 'Static, very bouncy.', { shape: 'poly', verts: rectVerts(3, 0.4), static: true, friction: 0.5, restitution: 1, color: '#e0b85c' }),
+
+    mkObj('Materials', 'ice', 'Ice block', 'Friction coefficient 0.02.', { shape: 'poly', verts: rectVerts(1, 1), density: 0.9, friction: 0.02, restitution: 0.05, color: '#bfe3f2' }),
+    mkObj('Materials', 'rubberball', 'Rubber ball', 'Bounciness 0.9, grippy.', { shape: 'circle', r: 0.35, density: 1.5, friction: 0.9, restitution: 0.9, color: '#c9776d' }),
+    mkObj('Materials', 'steelball', 'Steel ball', 'Dense: 8 kg/m². Barely bounces.', { shape: 'circle', r: 0.3, density: 30, friction: 0.4, restitution: 0.15, color: '#5d6b73' }),
+    mkObj('Materials', 'crate', 'Wooden crate', 'Light and fairly grippy.', { shape: 'poly', verts: rectVerts(1.2, 1.2), density: 0.6, friction: 0.55, restitution: 0.15, color: '#c9996a' }),
+    mkObj('Materials', 'foam', 'Foam cube', 'Very light, no bounce.', { shape: 'poly', verts: rectVerts(1, 1), density: 0.1, friction: 0.8, restitution: 0.05, color: '#e8d27a' }),
+    mkObj('Materials', 'sticky', 'Sticky block', 'Friction coefficient 1.5.', { shape: 'poly', verts: rectVerts(1, 1), density: 1, friction: 1.5, restitution: 0, color: '#9a88b8' }),
+    mkObj('Materials', 'putty', 'Putty ball', 'Bounciness 0: perfectly inelastic.', { shape: 'circle', r: 0.4, density: 1.5, friction: 0.6, restitution: 0, color: '#7fae8b' }),
+    mkObj('Materials', 'bowling', 'Bowling ball', 'Radius 0.55 m, heavy.', { shape: 'circle', r: 0.55, density: 6, friction: 0.3, restitution: 0.1, color: '#2f3b42' }),
+    mkObj('Materials', 'beach', 'Beach ball', 'Radius 0.6 m, nearly weightless.', { shape: 'circle', r: 0.6, density: 0.05, friction: 0.6, restitution: 0.8, color: '#e0b85c' }),
+    mkObj('Materials', 'heavy', 'Heavy block', '2 m block, 20 kg.', { shape: 'poly', verts: rectVerts(2, 2), density: 5, friction: 0.5, restitution: 0.1, color: '#4d5a61' }),
+    mkObj('Materials', 'hoop', 'Hoop', 'Circle with all its mass on the rim.', { shape: 'circle', r: 0.5, density: 1, hollow: true, friction: 0.9, restitution: 0.1, color: '#779bb0' }),
+    mkObj('Materials', 'puck', 'Frictionless puck', 'Slides without friction or spin.', { shape: 'circle', r: 0.4, density: 2, friction: 0.5, frictionOn: false, restitution: 0.5, color: '#bfe3f2' })
+];
+
+/* ---------- physics setups ---------- */
+
+const SETUPS = [
+    { cat: 'Launching & Kinematics', id: 'projectile', name: 'Projectile launch', desc: 'A 25 m/s cannonball fired at 45°. Range = v²·sin2θ / g ≈ 63.7 m. Turn on trails.',
+      build() {
+          const v = 25, a = 45 * DEG;
+          ball(-25, 0.3, 0.3, { name: 'Cannonball', density: 8, vx: v * Math.cos(a), vy: -v * Math.sin(a), color: COL.dark, restitution: 0.3 });
+          for (let i = 0; i < 5; i++) box(38.7, 0.5 + i, 1, 1, { mass: 0.5, friction: 0.4 });
+          return { view: { trails: true }, fit: { x0: -30, x1: 50, y0: -2, y1: 24 }, hint: 'Peak height = (v·sinθ)² / 2g ≈ 15.9 m, flight time ≈ 3.6 s. Knock the tower down.' };
+      } },
+    { cat: 'Launching & Kinematics', id: 'horizontal', name: 'Horizontal launch vs drop', desc: 'One ball is dropped, one is thrown sideways at 8 m/s. They hit the ground together.',
+      build() {
+          ball(-8, 18, 0.4, { name: 'Launched', vx: 8, group: 7, color: COL.blue, restitution: 0.2 });
+          ball(-8, 18, 0.4, { name: 'Dropped', vx: 0, group: 7, color: COL.red, restitution: 0.2 });
+          return { view: { trails: true }, fit: { x0: -12, x1: 24, y0: -2, y1: 22 }, hint: 'Vertical and horizontal motion are independent. Fall time = √(2h/g) ≈ 1.92 s, range = 8 × 1.92 ≈ 15.3 m.' };
+      } },
+    { cat: 'Launching & Kinematics', id: 'freefall', name: 'Free fall', desc: 'A heavy ball, a box and a foam cube dropped from 20 m. Same acceleration, same landing time.',
+      build() {
+          ball(-4, 20, 0.3, { name: 'Steel ball', density: 30, restitution: 0, color: COL.dark });
+          box(0, 20, 1, 1, { name: 'Box', mass: 1, restitution: 0, color: COL.tan });
+          box(4, 20, 1, 1, { name: 'Foam', mass: 0.1, restitution: 0, color: '#e8d27a' });
+          return { fit: { x0: -10, x1: 10, y0: -2, y1: 24 }, hint: 't = √(2h/g) ≈ 2.02 s, impact speed v = √(2gh) ≈ 19.8 m/s. Try air drag in Settings.' };
+      } },
+    { cat: 'Launching & Kinematics', id: 'angles', name: 'Launch angles', desc: 'Five balls at 15°, 30°, 45°, 60° and 75°, all at 20 m/s. Which goes farthest?',
+      build() {
+          const cols = [COL.red, COL.gold, COL.green, COL.blue, COL.purple];
+          [15, 30, 45, 60, 75].forEach((ang, i) => {
+              ball(-20, 0.2, 0.2, { name: ang + '°', group: 3, density: 5, restitution: 0.1, color: cols[i], vx: 20 * Math.cos(ang * DEG), vy: -20 * Math.sin(ang * DEG) });
+          });
+          return { view: { trails: true }, fit: { x0: -25, x1: 30, y0: -2, y1: 22 }, hint: 'Range = v²·sin2θ / g. 45° is the maximum (40.8 m). 15° and 75° land at the same spot.' };
+      } },
+
+    { cat: 'Forces & Friction', id: 'incline', name: 'Inclined plane', desc: 'Two 30° ramps. The slippery box (μ = 0.3) slides, the grippy one (μ = 0.7) stays put.',
+      build() {
+          const th = 30 * DEG, Hh = 20 * Math.tan(th);
+          wedge([[-30, 0], [-10, 0], [-10, Hh]]);
+          wedge([[10, Hh], [10, 0], [30, 0]]);
+          const s = 17, d = 0.52;
+          const ax = -30 + s * Math.cos(th) - Math.sin(th) * d, ay = s * Math.sin(th) + Math.cos(th) * d;
+          box(ax, ay, 1.6, 1, { name: 'μ = 0.3', mass: 2, friction: 0.3, angle: -th, color: COL.red });
+          const bx = 30 - s * Math.cos(th) + Math.sin(th) * d;
+          box(bx, ay, 1.6, 1, { name: 'μ = 0.7', mass: 2, friction: 0.7, angle: th, color: COL.green });
+          return { fit: { x0: -34, x1: 34, y0: -1, y1: 15 }, hint: 'A box slides when tanθ > μ. Here tan30° = 0.577. Acceleration = g(sinθ − μcosθ) ≈ 2.35 m/s² for the red box.' };
+      } },
+    { cat: 'Forces & Friction', id: 'rollrace', name: 'Rolling race: disk vs hoop', desc: 'Same mass and radius, but the hoop keeps its mass on the rim. Which one reaches the bottom first?',
+      build() {
+          const th = 25 * DEG, Hh = 15 * Math.tan(th), r = 0.5, s = 14;
+          wedge([[-15, 0], [15, 0], [0, Hh]]);
+          ball(-15 + s * Math.cos(th) - Math.sin(th) * (r + 0.02), s * Math.sin(th) + Math.cos(th) * (r + 0.02), r, { name: 'Disk', mass: 2, friction: 0.9, restitution: 0, color: COL.blue });
+          ball(15 - s * Math.cos(th) + Math.sin(th) * (r + 0.02), s * Math.sin(th) + Math.cos(th) * (r + 0.02), r, { name: 'Hoop', mass: 2, hollow: true, friction: 0.9, restitution: 0, color: COL.red });
+          return { fit: { x0: -18, x1: 18, y0: -1, y1: 9 }, hint: 'Rolling without slipping: a = g·sinθ / (1 + I/mr²). Disk: g·sinθ/1.5, hoop: g·sinθ/2. The disk wins.' };
+      } },
+    { cat: 'Forces & Friction', id: 'newton2', name: "Newton's second law", desc: 'The same 5 N force pushes carts of 1, 2 and 4 kg on frictionless tracks.',
+      build() {
+          const tops = [0, 4, 8], masses = [1, 2, 4], cols = [COL.red, COL.gold, COL.blue];
+          tops.forEach((t, i) => {
+              if (i > 0) slab(2.5, t - 0.15, 75, 0.3);
+              box(-30, t + 0.5, 1.6, 1, { name: masses[i] + ' kg', mass: masses[i], fx: 5, frictionOn: false, color: cols[i] });
+          });
+          return { fit: { x0: -34, x1: 42, y0: -1, y1: 14 }, hint: 'a = F/m = 5, 2.5 and 1.25 m/s². After 4 s they have moved 40, 20 and 10 m. Orange arrows show applied forces.' };
+      } },
+
+    { cat: 'Work & Energy', id: 'frictionwork', name: 'Friction does negative work', desc: 'Three boxes slide at 8 m/s with μ = 0.1, 0.3 and 0.6. Watch kinetic energy drain away.',
+      build() {
+          const mus = [0.1, 0.3, 0.6], cols = [COL.blue, COL.gold, COL.red];
+          [0, 4, 8].forEach((t, i) => {
+              if (i > 0) slab(2.5, t - 0.15, 75, 0.3);
+              box(-30, t + 0.5, 1.2, 1, { name: 'μ = ' + mus[i], mass: 2, friction: mus[i], vx: 8, restitution: 0, color: cols[i] });
+          });
+          return { fit: { x0: -34, x1: 42, y0: -1, y1: 14 }, hint: 'Stopping distance d = v²/(2μg): 32.6 m, 10.9 m and 5.4 m. Work by friction = −μmg·d = −½mv².' };
+      } },
+    { cat: 'Work & Energy', id: 'bowl', name: 'Energy in a bowl', desc: 'A frictionless puck and a rolling ball are released from the same height in a bowl.',
+      build() {
+          const R = 8, cyUp = 9, n = 60, span = 105 * DEG, t = 0.5;
+          for (let i = 0; i < n; i++) {
+              const th0 = -span + 2 * span * i / n, th1 = -span + 2 * span * (i + 1) / n, thm = (th0 + th1) / 2;
+              const dth = th1 - th0, Rm = R * Math.cos(dth / 2), len = 2 * R * Math.sin(dth / 2) * 1.08;
+              const rr = Rm + t / 2;
+              createBody({ name: 'Bowl', verts: rectVerts(len, t), x: rr * Math.sin(thm), y: -cyUp + rr * Math.cos(thm), angle: -thm, static: true, friction: 1, restitution: 0, color: '#9aa5aa', keepPos: true });
+          }
+          const rb = 0.5, th = 70 * DEG, rd = R - rb - 0.02;
+          ball(-rd * Math.sin(th), cyUp - rd * Math.cos(th), rb, { name: 'Puck', mass: 1, frictionOn: false, group: 5, restitution: 0, color: COL.ice });
+          ball(rd * Math.sin(th), cyUp - rd * Math.cos(th), rb, { name: 'Rolling ball', mass: 1, friction: 0.8, group: 5, restitution: 0, color: COL.red });
+          return { fit: { x0: -11, x1: 11, y0: -1, y1: 19 }, hint: 'Potential ↔ kinetic energy. The rolling ball also stores energy as rotation, so it reaches the bottom more slowly. Total stays constant.' };
+      } },
+    { cat: 'Work & Energy', id: 'rampdrop', name: 'Same height, same speed', desc: 'A box dropped straight down and a box sliding down a frictionless ramp from the same height.',
+      build() {
+          const Hr = 8, Lr = 14, phi = Math.atan2(Hr, Lr), hh = 1, s = 1.2;
+          wedge([[0, 0], [Lr, 0], [0, Hr]]);
+          const cx = s * Math.cos(phi) + Math.sin(phi) * (hh / 2 + 0.02);
+          const cup = Hr - s * Math.sin(phi) + Math.cos(phi) * (hh / 2 + 0.02);
+          box(cx, cup, 1, hh, { name: 'Slider', mass: 2, frictionOn: false, angle: phi, color: COL.blue, restitution: 0 });
+          box(-4, cup, 1, hh, { name: 'Dropped', mass: 2, color: COL.red, restitution: 0 });
+          return { fit: { x0: -8, x1: 30, y0: -1, y1: 12 }, hint: 'Gravity does the same work mgΔh on both, so both reach speed √(2gΔh) ≈ 12 m/s. The ramp just takes longer.' };
+      } },
+
+    { cat: 'Springs & Oscillations', id: 'springmass', name: 'Mass on a spring', desc: 'A 2 kg mass on a 50 N/m spring, released from 3 m past equilibrium.',
+      build() {
+          const wall = box(-8, 2, 1, 4, { name: 'Wall', static: true, color: COL.static });
+          const m = box(1.2, 0.5, 1.4, 1, { name: 'Mass', mass: 2, frictionOn: false, color: COL.blue });
+          addJoint('spring', m, { x: -0.7, y: 0 }, wall, { x: 0.5, y: 1.5 }, null, { k: 50, damp: 0.05, rest: 5 });
+          return { view: { trails: false }, fit: { x0: -12, x1: 8, y0: -1, y1: 7 }, hint: 'T = 2π√(m/k) ≈ 1.26 s. Energy swaps between spring and kinetic: ½kx² ↔ ½mv².' };
+      } },
+    { cat: 'Springs & Oscillations', id: 'hooke', name: "Hooke's law", desc: 'Identical springs (40 N/m) holding 1, 2 and 4 kg. Stretch is proportional to the load.',
+      build() {
+          slab(0, 12.35, 14, 0.7, { name: 'Ceiling' });
+          [1, 2, 4].forEach((m, i) => {
+              const x = -4 + i * 4;
+              const b = box(x, 7.5, 1, 1, { name: m + ' kg', mass: m, color: [COL.red, COL.gold, COL.blue][i] });
+              addJoint('spring', b, { x: 0, y: -0.5 }, null, null, { x: x, y: -12 }, { k: 40, damp: 1.5, rest: 4 });
+          });
+          return { fit: { x0: -9, x1: 9, y0: 2, y1: 14 }, hint: 'F = kx. At rest the stretch is mg/k: 0.25 m, 0.49 m and 0.98 m.' };
+      } },
+    { cat: 'Springs & Oscillations', id: 'coupled', name: 'Coupled oscillators', desc: 'Two masses and three springs. Energy sloshes back and forth between them.',
+      build() {
+          const wl = box(-10, 2, 1, 4, { name: 'Wall', static: true, color: COL.static });
+          const wr = box(10, 2, 1, 4, { name: 'Wall', static: true, color: COL.static });
+          const m1 = box(-1.8, 0.5, 1.6, 1, { name: 'Mass 1', mass: 2, frictionOn: false, color: COL.blue });
+          const m2 = box(3.8, 0.5, 1.6, 1, { name: 'Mass 2', mass: 2, frictionOn: false, color: COL.red });
+          addJoint('spring', m1, { x: -0.8, y: 0 }, wl, { x: 0.5, y: 1.5 }, null, { k: 40, damp: 0.02, rest: 4.9 });
+          addJoint('spring', m1, { x: 0.8, y: 0 }, m2, { x: -0.8, y: 0 }, null, { k: 40, damp: 0.02, rest: 6 });
+          addJoint('spring', m2, { x: 0.8, y: 0 }, wr, { x: -0.5, y: 1.5 }, null, { k: 40, damp: 0.02, rest: 4.9 });
+          return { fit: { x0: -13, x1: 13, y0: -1, y1: 7 }, hint: 'Only mass 1 starts displaced, yet mass 2 soon takes over. These are normal modes and beats.' };
+      } },
+    { cat: 'Springs & Oscillations', id: 'pendulums', name: 'Pendulums', desc: 'Three pendulums of length 6 m: 1 kg, 5 kg (both 20°) and a 60° swing.',
+      build() {
+          slab(0, 10.15, 26, 0.3, { name: 'Support' });
+          const L = 6, cfg = [[-9, 20, 1, COL.blue], [0, 20, 5, COL.red], [9, 60, 1, COL.gold]];
+          cfg.forEach(c => {
+              const th = c[1] * DEG;
+              const b = ball(c[0] + L * Math.sin(th), 10 - L * Math.cos(th), 0.4, { name: c[2] + ' kg', mass: c[2], group: 2, color: c[3], restitution: 0.2 });
+              addJoint('rod', b, { x: 0, y: 0 }, null, null, { x: c[0], y: -10 });
+          });
+          return { view: { trails: true }, fit: { x0: -17, x1: 17, y0: 0, y1: 12 }, hint: 'T = 2π√(L/g) ≈ 4.9 s for small angles, independent of mass. The 60° swing takes noticeably longer.' };
+      } },
+    { cat: 'Springs & Oscillations', id: 'doublependulum', name: 'Double pendulum', desc: 'Two rods and two bobs released from horizontal. Chaos in action.',
+      build() {
+          const b1 = ball(3, 12, 0.35, { name: 'Bob 1', mass: 1, group: 2, color: COL.blue });
+          const b2 = ball(6, 12, 0.35, { name: 'Bob 2', mass: 1, group: 2, color: COL.red });
+          addJoint('rod', b1, { x: 0, y: 0 }, null, null, { x: 0, y: -12 });
+          addJoint('rod', b2, { x: 0, y: 0 }, b1, { x: 0, y: 0 }, null);
+          return { view: { trails: true }, fit: { x0: -9, x1: 9, y0: 4, y1: 18 }, hint: 'Tiny changes in starting position lead to very different paths. Nudge a bob while paused and restart.' };
+      } },
+
+    { cat: 'Momentum & Impulse', id: 'elastic', name: 'Elastic collision', desc: 'A 3 kg cart at 8 m/s hits a resting 1 kg cart with bounciness 1.',
+      build() {
+          box(-20, 0.5, 1.5, 1, { name: '3 kg', mass: 3, vx: 8, frictionOn: false, restitution: 1, color: COL.blue });
+          box(0, 0.5, 1, 1, { name: '1 kg', mass: 1, frictionOn: false, restitution: 1, color: COL.red });
+          return { fit: { x0: -24, x1: 40, y0: -2, y1: 10 }, hint: 'Momentum is 24 kg·m/s before and after. Afterwards v₁ = 4 m/s and v₂ = 12 m/s, and kinetic energy is conserved.' };
+      } },
+    { cat: 'Momentum & Impulse', id: 'inelastic', name: 'Perfectly inelastic collision', desc: 'The same carts with bounciness 0. They end up moving together.',
+      build() {
+          box(-20, 0.5, 1.5, 1, { name: '3 kg', mass: 3, vx: 8, frictionOn: false, restitution: 0, color: COL.blue });
+          box(0, 0.5, 1, 1, { name: '1 kg', mass: 1, frictionOn: false, restitution: 0, color: COL.red });
+          return { fit: { x0: -24, x1: 40, y0: -2, y1: 10 }, hint: 'Momentum is conserved: 3·8 = 4·v, so v = 6 m/s. Kinetic energy drops from 96 J to 72 J.' };
+      } },
+    { cat: 'Momentum & Impulse', id: 'bounce', name: 'Coefficient of restitution', desc: 'Balls with bounciness 0.9, 0.7, 0.5, 0.3 and 0 dropped from 10 m.',
+      build() {
+          [0.9, 0.7, 0.5, 0.3, 0].forEach((e, i) => {
+              ball(-8 + i * 4, 10, 0.5, { name: 'e = ' + e, restitution: e, color: [COL.red, COL.gold, COL.green, COL.blue, COL.purple][i] });
+          });
+          return { view: { trails: true }, fit: { x0: -12, x1: 12, y0: -1, y1: 13 }, hint: 'Rebound speed = e × impact speed, so the bounce height is e²h: 8.1 m, 4.9 m, 2.5 m, 0.9 m and 0 m.' };
+      } },
+    { cat: 'Momentum & Impulse', id: 'ballistic', name: 'Ballistic pendulum', desc: 'A 0.5 kg bullet at 20 m/s embeds in a 5 kg block hanging from a rod.',
+      build() {
+          slab(0, 6.15, 8, 0.3, { name: 'Support' });
+          const blk = box(0, 2, 1, 1, { name: 'Block', mass: 5, color: COL.tan, friction: 0.5, restitution: 0 });
+          addJoint('rod', blk, { x: 0, y: 0 }, null, null, { x: 0, y: -6 });
+          ball(-3, 2.05, 0.12, { name: 'Bullet', mass: 0.5, vx: 20, restitution: 0, color: COL.dark, friction: 0.5 });
+          return { fit: { x0: -7, x1: 7, y0: -1, y1: 9 }, hint: 'Momentum: v = 0.5·20 / 5.5 ≈ 1.8 m/s. Then energy: h = v²/2g ≈ 0.17 m. Energy is lost in the collision itself.' };
+      } },
+    { cat: 'Momentum & Impulse', id: 'cradle', name: "Newton's cradle", desc: 'Five elastic balls. Pull one back and let go.',
+      build() {
+          const r = 0.5, L = 4, ay = 7;
+          slab(0, ay + 0.15, 8, 0.3, { name: 'Support' });
+          for (let i = 0; i < 5; i++) {
+              const x = (i - 2) * (2 * r + 0.002);
+              let bx = x, up = ay - L;
+              if (i === 0) { const th = 40 * DEG; bx = x - L * Math.sin(th); up = ay - L * Math.cos(th); }
+              const b = ball(bx, up, r, { name: 'Ball ' + (i + 1), mass: 1, restitution: 1, frictionOn: false, color: COL.gray });
+              addJoint('rod', b, { x: 0, y: 0 }, null, null, { x: x, y: -ay });
+          }
+          return { fit: { x0: -7, x1: 7, y0: 0, y1: 9 }, hint: 'Momentum and kinetic energy are both conserved, so exactly one ball swings out on the other side.' };
+      } },
+    { cat: 'Momentum & Impulse', id: 'cushion', name: 'Spring cushion', desc: 'The same ball dropped on a springy platform and on the hard floor.',
+      build() {
+          const plat = box(0, 2.5, 4, 0.3, { name: 'Platform', mass: 2, color: COL.gold, friction: 0.6, restitution: 0 });
+          [-1.8, 1.8].forEach(dx => {
+              addJoint('spring', plat, { x: dx, y: 0.15 }, null, null, { x: dx, y: 0 }, { k: 300, damp: 0.8, rest: 2.38 });
+          });
+          ball(0, 9, 0.5, { name: 'Ball A', mass: 2, restitution: 0, color: COL.red });
+          ball(9, 9, 0.5, { name: 'Ball B', mass: 2, restitution: 0, color: COL.blue });
+          return { fit: { x0: -7, x1: 13, y0: -1, y1: 12 }, hint: 'Same change in momentum, but the spring stretches the impulse over a longer time, so the average force is much smaller. F·Δt = Δp.' };
+      } },
+
+    { cat: 'Fun', id: 'wreck', name: 'Wrecking ball', desc: 'A 30 kg wrecking ball swings into a pyramid of boxes.',
+      build() {
+          for (let row = 0; row < 5; row++) {
+              for (let i = 0; i < 5 - row; i++) {
+                  box(2.8 + (i - (4 - row) / 2) * 1.01, 0.5 + row * 1.0, 1, 1, { name: 'Brick', mass: 1, friction: 0.6, restitution: 0.05, color: ['#c9996a', '#d3a184', '#c9776d', '#e0b85c', '#9a88b8'][row] });
+              }
+          }
+          slab(-1.2, 14.15, 6, 0.3, { name: 'Support' });
+          const th = 65 * DEG, L = 12;
+          const b = ball(-1.2 - L * Math.sin(th), 14 - L * Math.cos(th), 1, { name: 'Wrecking ball', mass: 30, color: COL.dark, restitution: 0.1 });
+          addJoint('rod', b, { x: 0, y: 0 }, null, null, { x: -1.2, y: -14 });
+          return { fit: { x0: -18, x1: 12, y0: -1, y1: 20 }, hint: 'Converts potential energy into kinetic energy, then into a lot of damage.' };
+      } },
+    { cat: 'Fun', id: 'bridge', name: 'Plank bridge', desc: 'Hinged planks hang between two fixed points. Drop things on it.',
+      build() {
+          const N = 14, sag = 3, pts = [];
+          for (let i = 0; i <= N; i++) {
+              const t = i / N;
+              pts.push({ x: -6 + 12 * t, y: -(8 - sag * 4 * t * (1 - t)) });
+          }
+          const segs = [];
+          for (let i = 0; i < N; i++) {
+              const p = pts[i], q = pts[i + 1], len = Math.hypot(q.x - p.x, q.y - p.y);
+              segs.push({ b: createBody({ name: 'Plank', verts: rectVerts(len, 0.25), x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, angle: Math.atan2(q.y - p.y, q.x - p.x), mass: 0.8, friction: 0.7, restitution: 0.05, color: COL.tan, keepPos: true }), len });
+          }
+          addJoint('pin', segs[0].b, { x: -segs[0].len / 2, y: 0 }, null, null, pts[0]);
+          addJoint('pin', segs[N - 1].b, { x: segs[N - 1].len / 2, y: 0 }, null, null, pts[N]);
+          for (let i = 0; i < N - 1; i++) addJoint('pin', segs[i].b, { x: segs[i].len / 2, y: 0 }, segs[i + 1].b, { x: -segs[i + 1].len / 2, y: 0 }, null);
+          box(-7, 3, 1, 10, { name: 'Post', static: true, color: COL.static });
+          box(7, 3, 1, 10, { name: 'Post', static: true, color: COL.static });
+          box(-1.5, 12, 1, 1, { mass: 2, color: COL.red });
+          ball(1.5, 14, 0.6, { mass: 3, color: COL.blue });
+          return { fit: { x0: -10, x1: 10, y0: -1, y1: 17 }, hint: 'Hinges (pins) join the planks. The chain settles into a curve close to a catenary.' };
+      } },
+    { cat: 'Fun', id: 'ragdoll', name: 'Ragdoll', desc: 'A hinged ragdoll falls to the ground.',
+      build() {
+          const part = (name, x, up, w, h, mass, color) => createBody({ name, verts: rectVerts(w, h), x, y: -up, mass, color, friction: 0.7, restitution: 0.1 });
+          const head = ball(0, 6.75, 0.28, { name: 'Head', mass: 0.8, color: '#d3a184', friction: 0.6 });
+          const torso = part('Torso', 0, 6, 0.5, 0.8, 3, COL.blue);
+          const hinge = (a, b, wx, wup) => addJoint('pin', a, lp(a, wx, wup), b, lp(b, wx, wup), null);
+          hinge(head, torso, 0, 6.42);
+          [-1, 1].forEach(sd => {
+              const arm = part('Arm', sd * 0.33, 6.05, 0.16, 0.6, 0.5, '#d3a184');
+              hinge(torso, arm, sd * 0.33, 6.35);
+              const thigh = part('Thigh', sd * 0.14, 5.25, 0.22, 0.7, 1.2, '#5d6b73');
+              hinge(torso, thigh, sd * 0.14, 5.6);
+              const calf = part('Calf', sd * 0.14, 4.55, 0.2, 0.7, 1, '#4d5a61');
+              hinge(thigh, calf, sd * 0.14, 4.9);
+          });
+          bodies.forEach(b => { if (!b.static) { b.vx = 2; b.w = 1.5; } });
+          box(7, 0.5, 1, 1, { mass: 3, color: COL.red });
+          return { fit: { x0: -8, x1: 10, y0: -1, y1: 9 }, hint: 'Eight bodies joined by hinges. Grab a limb while running to throw it around.' };
+      } }
+];
+
+const SETUP_CATS = ['Launching & Kinematics', 'Forces & Friction', 'Work & Energy', 'Springs & Oscillations', 'Momentum & Impulse', 'Fun'];
+// ===== ENGINE END =====
+</script>
+
+<!-- ======================================================================
+     USER INTERFACE
+     ====================================================================== -->
+<script>
+const $ = id => document.getElementById(id);
+
+let canvas, ctx, dpr = 1, SW = 800, SH = 600;
+let inited = false, running = false, looping = false, paused = false;
+let activeTool = 'select', placeSpec = null;
+let selected = null, selectedJoint = null;
+let snapshot = null;
+const undoStack = [];
+const redoStack = [];
+const cam = { x: 0, y: -4, zoom: 50 };
+let homeCam = { x: 0, y: -4, zoom: 50 };
+const view = { grid: true, vectors: false, trails: false, data: true };
+let uiTheme = 'light';
+let hintDismissed = false;
+const LAUNCH_GAIN = 2;
+
+let mouse = { x: 0, y: 0 }, mouseScr = { x: 0, y: 0 };
+let panning = null, dragBody = null, dragMode = null, dragOff = null, rotating = false, placing = null, conn = null;
+let contextTarget = null;
+let lastT = 0, acc = 0, frames = 0, fpsTime = 0, uiTick = 0;
+const hist = { t: [], ke: [], pe: [], se: [], tot: [] };
+let lastSample = 0;
+let customObjects = [];
+const OBJECT_BY_ID = {};
+OBJECTS.forEach(o => OBJECT_BY_ID[o.id] = o);
+
+/* ---------- storage helpers ---------- */
+
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+
+function loadPrefs() {
+    const p = lsGet('mechanics.prefs', {});
+    Object.assign(view, p.view || {});
+    uiTheme = p.theme === 'dark' ? 'dark' : 'light';
+    hintDismissed = p.hintDismissed === true;
+    S.gravity = isFinite(p.gravity) ? p.gravity : S.gravity;
+    S.airDrag = isFinite(p.airDrag) ? Math.max(0, p.airDrag) : S.airDrag;
+    S.friction = p.friction !== false;
+    sceneBackground.color = p.background && /^#[0-9a-f]{6}$/i.test(p.background.color) ? p.background.color : DEFAULT_SCENE_BACKGROUND;
+    setSceneBackgroundImage(p.background && p.background.image ? p.background.image : '');
+    customObjects = lsGet('mechanics.custom', []);
+    applyTheme(uiTheme);
+    updateHintState();
+}
+function savePrefs() {
+    lsSet('mechanics.prefs', {
+        view,
+        theme: uiTheme,
+        gravity: S.gravity,
+        airDrag: S.airDrag,
+        friction: S.friction,
+        hintDismissed,
+        background: { color: sceneBackground.color, image: sceneBackground.image }
+    });
+}
+
+function applyTheme(theme) {
+    uiTheme = theme === 'dark' ? 'dark' : 'light';
+    document.body.classList.toggle('app-dark', uiTheme === 'dark');
+}
+
+function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast.id);
+    toast.id = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function fmt(v) { return String(Number((+v).toFixed(3))); }
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------- menu ---------- */
+
+const HOME_DEMO_STEP = 1 / 240;
+const homeDemoState = { a1: 2.15, a2: 1.45, w1: 0, w2: 0 };
+const homeDemoTrail = [];
+const homeDemoReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let homeDemoCanvas = null, homeDemoContext = null, homeDemoFrame = 0;
+let homeDemoWidth = 0, homeDemoHeight = 0, homeDemoDpr = 1;
+let homeDemoLastTime = 0, homeDemoAccumulator = 0, homeDemoSampleTime = 0;
+
+function resizeHomeDemo() {
+    if (!homeDemoCanvas) return;
+    const rect = homeDemoCanvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    homeDemoDpr = Math.min(window.devicePixelRatio || 1, 2);
+    homeDemoWidth = rect.width;
+    homeDemoHeight = rect.height;
+    homeDemoCanvas.width = Math.round(rect.width * homeDemoDpr);
+    homeDemoCanvas.height = Math.round(rect.height * homeDemoDpr);
+    homeDemoContext = homeDemoCanvas.getContext('2d');
+    homeDemoContext.setTransform(homeDemoDpr, 0, 0, homeDemoDpr, 0, 0);
+    drawHomeDemo();
+}
+
+function stepHomeDemo(dt) {
+    const { a1, a2, w1, w2 } = homeDemoState;
+    const delta = a1 - a2;
+    const denominator = 3 - Math.cos(2 * delta);
+    const accel1 = (-3 * 9.81 * Math.sin(a1) - 9.81 * Math.sin(a1 - 2 * a2) - 2 * Math.sin(delta) * (w2 * w2 + w1 * w1 * Math.cos(delta))) / denominator;
+    const accel2 = (2 * Math.sin(delta) * (2 * w1 * w1 + 2 * 9.81 * Math.cos(a1) + w2 * w2 * Math.cos(delta))) / denominator;
+    homeDemoState.w1 += accel1 * dt;
+    homeDemoState.w2 += accel2 * dt;
+    homeDemoState.a1 += homeDemoState.w1 * dt;
+    homeDemoState.a2 += homeDemoState.w2 * dt;
+    homeDemoSampleTime += dt;
+    if (homeDemoSampleTime >= 1 / 40) {
+        homeDemoSampleTime %= 1 / 40;
+        homeDemoTrail.push({ a1: homeDemoState.a1, a2: homeDemoState.a2 });
+        if (homeDemoTrail.length > 220) homeDemoTrail.shift();
+    }
+}
+
+function drawHomeDemo() {
+    if (!homeDemoContext || !homeDemoWidth || !homeDemoHeight) return;
+    const c = homeDemoContext, w = homeDemoWidth, h = homeDemoHeight;
+    c.setTransform(homeDemoDpr, 0, 0, homeDemoDpr, 0, 0);
+    c.clearRect(0, 0, w, h);
+    const spacing = Math.max(34, Math.round(Math.min(w, h) / 9));
+    c.strokeStyle = 'rgba(177,220,232,0.12)';
+    c.lineWidth = 1;
+    c.beginPath();
+    for (let x = spacing; x < w; x += spacing) { c.moveTo(x, 0); c.lineTo(x, h); }
+    for (let y = spacing; y < h; y += spacing) { c.moveTo(0, y); c.lineTo(w, y); }
+    c.stroke();
+
+    const pivot = { x: w * 0.56, y: h * 0.19 };
+    const length1 = Math.min(h * 0.29, w * 0.2);
+    const length2 = Math.min(h * 0.27, w * 0.19);
+    const pointsFor = (a1, a2) => {
+        const x1 = pivot.x + length1 * Math.sin(a1), y1 = pivot.y + length1 * Math.cos(a1);
+        return { x1, y1, x2: x1 + length2 * Math.sin(a2), y2: y1 + length2 * Math.cos(a2) };
+    };
+
+    c.lineWidth = 2;
+    for (let i = 1; i < homeDemoTrail.length; i++) {
+        const prev = pointsFor(homeDemoTrail[i - 1].a1, homeDemoTrail[i - 1].a2);
+        const next = pointsFor(homeDemoTrail[i].a1, homeDemoTrail[i].a2);
+        c.globalAlpha = 0.04 + 0.42 * i / homeDemoTrail.length;
+        c.strokeStyle = '#65cde8';
+        c.beginPath(); c.moveTo(prev.x2, prev.y2); c.lineTo(next.x2, next.y2); c.stroke();
+    }
+    c.globalAlpha = 1;
+
+    const p = pointsFor(homeDemoState.a1, homeDemoState.a2);
+    c.strokeStyle = 'rgba(237,245,247,0.78)'; c.lineWidth = 2.5; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(pivot.x, pivot.y); c.lineTo(p.x1, p.y1); c.lineTo(p.x2, p.y2); c.stroke();
+    c.strokeStyle = 'rgba(237,245,247,0.44)'; c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(pivot.x - 24, pivot.y - 12); c.lineTo(pivot.x + 24, pivot.y - 12); c.stroke();
+    c.fillStyle = '#f1f5f4'; c.beginPath(); c.arc(pivot.x, pivot.y, 4, 0, Math.PI * 2); c.fill();
+
+    c.fillStyle = '#f0b467'; c.beginPath(); c.arc(p.x1, p.y1, 10, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#63d2c2'; c.beginPath(); c.arc(p.x2, p.y2, 13, 0, Math.PI * 2); c.fill();
+    const vx = length1 * homeDemoState.w1 * Math.cos(homeDemoState.a1) + length2 * homeDemoState.w2 * Math.cos(homeDemoState.a2);
+    const vy = -length1 * homeDemoState.w1 * Math.sin(homeDemoState.a1) - length2 * homeDemoState.w2 * Math.sin(homeDemoState.a2);
+    const vectorLength = Math.hypot(vx, vy);
+    if (vectorLength > 0.01) {
+        const scale = 34 / vectorLength;
+        const ex = p.x2 + vx * scale, ey = p.y2 + vy * scale;
+        c.strokeStyle = '#ffcb79'; c.fillStyle = '#ffcb79'; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(p.x2, p.y2); c.lineTo(ex, ey); c.stroke();
+        const angle = Math.atan2(ey - p.y2, ex - p.x2);
+        c.beginPath(); c.moveTo(ex, ey);
+        c.lineTo(ex - 8 * Math.cos(angle - 0.45), ey - 8 * Math.sin(angle - 0.45));
+        c.lineTo(ex - 8 * Math.cos(angle + 0.45), ey - 8 * Math.sin(angle + 0.45));
+        c.closePath(); c.fill();
+    }
+}
+
+function animateHomeDemo(time) {
+    const dt = Math.min((time - homeDemoLastTime) / 1000 || 0.016, 1 / 30);
+    homeDemoLastTime = time;
+    if (!homeDemoReducedMotion) {
+        homeDemoAccumulator += dt;
+        while (homeDemoAccumulator >= HOME_DEMO_STEP) {
+            stepHomeDemo(HOME_DEMO_STEP);
+            homeDemoAccumulator -= HOME_DEMO_STEP;
+        }
+    }
+    drawHomeDemo();
+    if (!homeDemoReducedMotion) homeDemoFrame = requestAnimationFrame(animateHomeDemo);
+}
+
+function startHomeDemo() {
+    if (homeDemoFrame) return;
+    if (!homeDemoCanvas) homeDemoCanvas = $('homeDemoCanvas');
+    resizeHomeDemo();
+    homeDemoLastTime = performance.now();
+    if (homeDemoReducedMotion) drawHomeDemo();
+    else homeDemoFrame = requestAnimationFrame(animateHomeDemo);
+}
+
+function stopHomeDemo() {
+    if (homeDemoFrame) cancelAnimationFrame(homeDemoFrame);
+    homeDemoFrame = 0;
+}
+
+function startGame() {
+    stopHomeDemo();
+    const home = $('home'), loading = $('loading'), detail = $('loadingDetail');
+    home.style.display = 'none';
+    loading.style.display = 'flex';
+    const stages = ['CALIBRATING PHYSICS ENGINE', 'ASSEMBLING DYNAMIC ENVIRONMENT', 'CONNECTING CONSTRAINTS', 'SANDBOX READY'];
+    stages.forEach((s, i) => setTimeout(() => { detail.textContent = s; }, 250 + i * 330));
+    setTimeout(() => {
+        showSim();
+        newScene();
+    }, 1650);
+}
+
+function resumeGame() { showSim(); }
+
+function goHome() {
+    running = false;
+    closeLibrary(); closeModal('saveModal'); closeModal('settingsModal'); closeContext();
+    $('simulation').style.display = 'none';
+    $('loading').style.display = 'none';
+    $('home').style.display = 'block';
+    startHomeDemo();
+}
+function exitGame() { goHome(); }
+
+function showSim() {
+    stopHomeDemo();
+    $('home').style.display = 'none';
+    $('loading').style.display = 'none';
+    $('simulation').style.display = 'block';
+    initPhysics();
+    resizeCanvas();
+    running = true;
+    $('resumeBtn').style.display = 'block';
+    if (!looping) { looping = true; lastT = performance.now(); requestAnimationFrame(animate); }
+}
+
+function loadGame() { openSave(); }
+function openExperiments() {
+    if (!inited) { showSim(); newScene(); }
+    else showSim();
+    openLibrary('Launching & Kinematics');
+}
+
+/* ---------- scene management ---------- */
+
+function newScene() {
+    clearWorld();
+    loadPrefs();
+    G();
+    selected = null; selectedJoint = null;
+    undoStack.length = 0;
+    redoStack.length = 0;
+    updateHistoryButtons();
+    resetCam();
+    clearHistory();
+    setPaused(false);
+    snapshot = JSON.stringify(serialize());
+    buildInspector();
+    showHint('WELCOME', 'Pick an item in the toolbar, then click to place it (or drag to launch it). Open MORE for the full library and ready-made physics setups. Space pauses. Scroll to zoom, drag empty space to pan.');
+}
+
+function resetCam() { cam.x = 0; cam.y = -4; cam.zoom = 50; homeCam = { x: 0, y: -4, zoom: 50 }; }
+
+function fitTo(f) {
+    const w = f.x1 - f.x0, h = f.y1 - f.y0;
+    const z = Math.min(window.innerWidth / w, window.innerHeight / h) * 0.82;
+    cam.x = (f.x0 + f.x1) / 2; cam.y = -(f.y0 + f.y1) / 2; cam.zoom = clamp(z, 3, 300);
+    homeCam = { x: cam.x, y: cam.y, zoom: cam.zoom };
+}
+
+function loadSetup(s) {
+    pushUndo();
+    clearWorld();
+    S.gravity = 9.81; S.airDrag = 0; S.friction = true;
+    G();
+    const r = s.build() || {};
+    view.trails = false; view.vectors = false; view.data = true;
+    Object.assign(view, r.view || {});
+    updateViewButtons();
+    if (r.fit) fitTo(r.fit); else resetCam();
+    selected = null; selectedJoint = null;
+    clearHistory();
+    setPaused(true);
+    snapshot = JSON.stringify(serialize());
+    buildInspector();
+    closeLibrary();
+    showHint(s.name.toUpperCase(), (s.desc || '') + ' ' + (r.hint || '') + ' Press Space or PLAY to run.');
+}
+
+function remapSelection(selId, selJ) {
+    selected = selId != null ? bodies.find(b => b.id === selId) || null : null;
+    selectedJoint = (!selected && selJ != null) ? joints.find(j => j.id === selJ) || null : null;
+}
+
+function restoreData(d) {
+    const sId = selected ? selected.id : null, sJ = selectedJoint ? selectedJoint.id : null;
+    deserialize(d);
+    remapSelection(sId, sJ);
+    for (const b of bodies) updateGeom(b);
+}
+
+function pushUndo() {
+    undoStack.push(JSON.stringify(serialize()));
+    if (undoStack.length > 40) undoStack.shift();
+    redoStack.length = 0;
+    updateHistoryButtons();
+}
+function updateHistoryButtons() {
+    if ($('undoBtn')) $('undoBtn').disabled = !undoStack.length;
+    if ($('redoBtn')) $('redoBtn').disabled = !redoStack.length;
+}
+function undo() {
+    if (!undoStack.length) { toast('Nothing to undo'); return; }
+    redoStack.push(JSON.stringify(serialize()));
+    restoreData(JSON.parse(undoStack.pop()));
+    if (paused) snapshot = JSON.stringify(serialize());
+    buildInspector();
+    clearHistory();
+    updateHistoryButtons();
+}
+function redo() {
+    if (!redoStack.length) { toast('Nothing to redo'); return; }
+    undoStack.push(JSON.stringify(serialize()));
+    restoreData(JSON.parse(redoStack.pop()));
+    if (paused) snapshot = JSON.stringify(serialize());
+    buildInspector();
+    clearHistory();
+    updateHistoryButtons();
+}
+function markEdited() { if (paused) snapshot = JSON.stringify(serialize()); }
+
+function clearHistory() {
+    hist.t.length = hist.ke.length = hist.pe.length = hist.se.length = hist.tot.length = 0;
+    lastSample = 0;
+    for (const b of bodies) b.trail.length = 0;
+}
+
+function restart() {
+    if (!snapshot) return;
+    restoreData(JSON.parse(snapshot));
+    clearHistory();
+    buildInspector();
+    acc = 0;
+}
+
+function setPaused(p) {
+    if (!p && paused) snapshot = JSON.stringify(serialize());
+    paused = p;
+    $('pauseButton').textContent = paused ? '▶ PLAY' : '⏸ PAUSE';
+    $('pausedTag').style.display = paused ? 'block' : 'none';
+    updateBanner();
+}
+
+function updateHintState() {
+    document.querySelectorAll('.status-bar').forEach(el => el.classList.toggle('hint-dismissed', hintDismissed));
+}
+
+function showHint(title, text) {
+    updateHintState();
+    if (hintDismissed) { $('hint').style.display = 'none'; return; }
+    $('hintTitle').textContent = title;
+    $('hintText').textContent = text;
+    $('hint').style.display = 'block';
+}
+function hideHint() {
+    hintDismissed = true;
+    $('hint').style.display = 'none';
+    $('banner').style.display = 'none';
+    updateHintState();
+    savePrefs();
+}
+
+/* ---------- init ---------- */
+
+function initPhysics() {
+    if (inited) return;
+    inited = true;
+    loadPrefs();
+    canvas = $('physicsCanvas');
+    ctx = canvas.getContext('2d');
+
+    // toolbar quick items
+    const quick = $('quickItems');
+    ['box', 'circle', 'triangle', 'plank'].forEach(id => {
+        const o = OBJECT_BY_ID[id];
+        const btn = document.createElement('button');
+        btn.className = 'tool-button';
+        btn.dataset.tool = 'place';
+        btn.dataset.spec = id;
+        btn.title = o.name + ': ' + o.desc;
+        btn.appendChild(thumb(o.spec, 24, 24, 3));
+        const lab = document.createElement('span');
+        lab.textContent = o.name.toUpperCase();
+        btn.appendChild(lab);
+        quick.appendChild(btn);
+    });
+    document.querySelectorAll('[data-tool]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const t = btn.dataset.tool;
+            if (t === 'more') openLibrary();
+            else if (t === 'place') setTool('place', OBJECT_BY_ID[btn.dataset.spec].spec);
+            else setTool(t);
+        });
+    });
+    document.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const k = btn.dataset.view;
+            view[k] = !view[k];
+            if (k === 'trails' && !view[k]) for (const b of bodies) b.trail.length = 0;
+            savePrefs(); updateViewButtons();
+        });
+    });
+    updateViewButtons();
+
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('pointercancel', onUp);
+    canvas.addEventListener('contextmenu', onContext);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', e => { if (!e.target.closest('.context-menu')) closeContext(); });
+
+    $('pauseButton').onclick = () => setPaused(!paused);
+    $('stepButton').onclick = () => { if (!paused) setPaused(true); stepFrames(1); };
+    $('restartButton').onclick = restart;
+    $('speedSel').onchange = e => { S.timeScale = parseFloat(e.target.value); };
+    $('zoomInBtn').onclick = () => zoomAt(SW / 2, SH / 2, 1.3);
+    $('zoomOutBtn').onclick = () => zoomAt(SW / 2, SH / 2, 1 / 1.3);
+    $('homeViewBtn').onclick = () => { cam.x = homeCam.x; cam.y = homeCam.y; cam.zoom = homeCam.zoom; };
+    $('undoBtn').onclick = undo;
+    $('redoBtn').onclick = redo;
+    $('banner').onclick = hideBanner;
+    $('saveBtn').onclick = openSave;
+    $('settingsBtn').onclick = openSettings;
+    $('menuButton').onclick = goHome;
+    $('hint').onclick = hideHint;
+    updateHintState();
+    updateHistoryButtons();
+
+    $('ctxSelect').onclick = () => { if (contextTarget) { if (contextTarget.body) select(contextTarget.body); else selectJoint(contextTarget.joint); } closeContext(); };
+    $('ctxStatic').onclick = () => { const b = contextTarget && contextTarget.body; if (b) { pushUndo(); setStatic(b, !b.static); select(b); markEdited(); } closeContext(); };
+    $('ctxDup').onclick = () => { const b = contextTarget && contextTarget.body; if (b) duplicateBody(b); closeContext(); };
+    $('ctxDel').onclick = () => {
+        if (contextTarget) { if (contextTarget.body) deleteBody(contextTarget.body); else deleteJoint(contextTarget.joint); }
+        closeContext();
+    };
+
+    initSaveUI();
+    initSettingsUI();
+    buildInspector();
+    setTool('select');
+    updateBanner();
+}
+
+function resizeCanvas() {
+    if (!canvas) return;
+    dpr = window.devicePixelRatio || 1;
+    SW = window.innerWidth; SH = window.innerHeight;
+    canvas.width = SW * dpr; canvas.height = SH * dpr;
+    canvas.style.width = SW + 'px'; canvas.style.height = SH + 'px';
+}
+
+function updateViewButtons() {
+    document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', !!view[b.dataset.view]));
+    $('dataPanel').style.display = view.data ? '' : 'none';
+    trailsOn = view.trails;
+}
+
+function setTool(t, spec) {
+    activeTool = t;
+    placeSpec = t === 'place' ? spec : null;
+    conn = null; placing = null;
+    document.querySelectorAll('[data-tool]').forEach(b => {
+        const tool = b.dataset.tool;
+        let on = tool === t;
+        if (tool === 'place') on = t === 'place' && spec && b.dataset.spec === spec.key;
+        if (tool === 'more') on = false;
+        b.classList.toggle('active', on);
+    });
+    if (canvas) canvas.style.cursor = t === 'pan' ? 'grab' : (t === 'select' ? 'default' : 'crosshair');
+    updateBanner();
+}
+
+function updateBanner() {
+    const msgs = {
+        select: 'Drag objects to move them. Drag the round handle to rotate. Drag empty space to pan, scroll to zoom. Right-click for more.',
+        pan: 'Drag to pan the view.',
+        spring: 'SPRING: drag from one object to another, or to empty space for a fixed anchor.',
+        rod: 'ROD: drag between two objects (or an object and empty space) to fix their distance.',
+        pin: 'HINGE: click an object to pin it to the world, or drag onto a second object to hinge them together.'
+    };
+    let t = activeTool === 'place' && placeSpec ? 'PLACING ' + placeSpec.name.toUpperCase() + ': click to place, drag to launch (direction and speed). Esc to cancel.' : msgs[activeTool];
+    $('banner').textContent = hintDismissed ? '' : (t || '');
+    $('banner').style.display = hintDismissed ? 'none' : '';
+}
+function hideBanner() {
+    hintDismissed = true;
+    $('banner').style.display = 'none';
+    updateHintState();
+    savePrefs();
+}
+
+/* ---------- coordinates ---------- */
+
+function sp(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+function toWorld(px, py) { return { x: (px - SW / 2) / cam.zoom + cam.x, y: (py - SH / 2) / cam.zoom + cam.y }; }
+
+function zoomAt(px, py, f) {
+    const before = toWorld(px, py);
+    cam.zoom = clamp(cam.zoom * f, 3, 300);
+    const after = toWorld(px, py);
+    cam.x += before.x - after.x; cam.y += before.y - after.y;
+}
+
+function onWheel(e) {
+    e.preventDefault();
+    const s = sp(e);
+    zoomAt(s.x, s.y, Math.exp(-e.deltaY * 0.0015));
+}
+
+/* ---------- hit testing ---------- */
+
+function bodyAt(x, y) {
+    for (let i = bodies.length - 1; i >= 0; i--) {
+        const b = bodies[i];
+        if (b.shape === 'circle') {
+            if (Math.hypot(x - b.x, y - b.y) <= b.r) return b;
+        } else {
+            if (!b.wv) updateGeom(b);
+            let inside = true;
+            for (let k = 0; k < b.wv.length; k++) {
+                if ((x - b.wv[k].x) * b.wn[k].x + (y - b.wv[k].y) * b.wn[k].y > 0) { inside = false; break; }
+            }
+            if (inside) return b;
+        }
+    }
+    return null;
+}
+
+function segDist(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1, l2 = dx * dx + dy * dy;
+    let t = l2 > 0 ? ((px - x1) * dx + (py - y1) * dy) / l2 : 0;
+    t = clamp(t, 0, 1);
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function jointAt(x, y) {
+    const tol = 10 / cam.zoom;
+    for (let i = joints.length - 1; i >= 0; i--) {
+        const j = joints[i], p = jPoints(j);
+        if (j.type === 'pin') { if (Math.hypot(x - p[0].x, y - p[0].y) < tol * 1.2) return j; }
+        else if (segDist(x, y, p[0].x, p[0].y, p[1].x, p[1].y) < tol) return j;
+    }
+    return null;
+}
+
+function bodyExtent(b) { return b.shape === 'circle' ? b.r : b.bound; }
+function handlePos(b) {
+    const d = bodyExtent(b) + 18 / cam.zoom + 0.25;
+    return { x: b.x + Math.sin(b.angle) * d, y: b.y - Math.cos(b.angle) * d };
+}
+function handleHit(p) {
+    if (!selected) return false;
+    const h = handlePos(selected);
+    return Math.hypot(p.x - h.x, p.y - h.y) < 12 / cam.zoom;
+}
+
+/* ---------- pointer interaction ---------- */
+
+function onDown(e) {
+    closeContext();
+    const s = sp(e), p = toWorld(s.x, s.y);
+    mouse = p; mouseScr = s;
+    if (e.button === 2) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
+    if (e.button === 1 || activeTool === 'pan') {
+        panning = { sx: s.x, sy: s.y, cx: cam.x, cy: cam.y };
+        canvas.classList.add('dragging');
+        return;
+    }
+    if (e.button !== 0) return;
+
+    if (activeTool === 'select') {
+        if (selected && handleHit(p)) { pushUndo(); rotating = true; canvas.classList.add('dragging'); return; }
+        const b = bodyAt(p.x, p.y);
+        if (b) {
+            select(b);
+            if (b.isGround) { panning = { sx: s.x, sy: s.y, cx: cam.x, cy: cam.y }; return; }
+            startDrag(b, p);
+            return;
+        }
+        const j = jointAt(p.x, p.y);
+        if (j) { selectJoint(j); return; }
+        select(null);
+        panning = { sx: s.x, sy: s.y, cx: cam.x, cy: cam.y };
+        canvas.classList.add('dragging');
+        return;
+    }
+    if (activeTool === 'place' && placeSpec) {
+        hideHint();
+        placing = { x0: p.x, y0: p.y, x1: p.x, y1: p.y };
+        return;
+    }
+    if (activeTool === 'spring' || activeTool === 'rod' || activeTool === 'pin') {
+        const b = bodyAt(p.x, p.y);
+        conn = { type: activeTool, body: b, la: b ? localPoint(b, p.x, p.y) : null, x0: p.x, y0: p.y, x1: p.x, y1: p.y, sx: s.x, sy: s.y };
+    }
+}
+
+function startDrag(b, p) {
+    dragBody = b;
+    dragMode = (paused || b.static) ? 'direct' : 'joint';
+    if (dragMode === 'joint') {
+        const l = localPoint(b, p.x, p.y);
+        mouseJ.body = b; mouseJ.lx = l.x; mouseJ.ly = l.y; mouseJ.tx = p.x; mouseJ.ty = p.y;
+    } else {
+        pushUndo();
+        dragOff = { x: b.x - p.x, y: b.y - p.y };
+    }
+    canvas.classList.add('dragging');
+}
+
+function onMove(e) {
+    const s = sp(e), p = toWorld(s.x, s.y);
+    mouse = p; mouseScr = s;
+    $('cursorPos').textContent = p.x.toFixed(1) + ', ' + (-p.y).toFixed(1) + ' m';
+    if (panning) {
+        cam.x = panning.cx - (s.x - panning.sx) / cam.zoom;
+        cam.y = panning.cy - (s.y - panning.sy) / cam.zoom;
+    } else if (rotating && selected) {
+        selected.angle = Math.atan2(p.x - selected.x, -(p.y - selected.y));
+        selected.w = 0;
+        updateGeom(selected);
+    } else if (dragBody) {
+        if (dragMode === 'joint') { mouseJ.tx = p.x; mouseJ.ty = p.y; }
+        else {
+            dragBody.x = p.x + dragOff.x; dragBody.y = p.y + dragOff.y;
+            if (!dragBody.static) { dragBody.vx = dragBody.vy = dragBody.w = 0; }
+            updateGeom(dragBody);
+        }
+    } else if (placing) { placing.x1 = p.x; placing.y1 = p.y; }
+    else if (conn) { conn.x1 = p.x; conn.y1 = p.y; }
+}
+
+function onUp(e) {
+    if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (err) { } }
+    canvas.classList.remove('dragging');
+    if (panning) { panning = null; return; }
+    if (rotating) { rotating = false; markEdited(); return; }
+    if (dragBody) {
+        mouseJ.body = null;
+        if (dragMode === 'direct') markEdited();
+        dragBody = null; dragMode = null;
+        return;
+    }
+    if (placing && placeSpec) {
+        const dx = placing.x1 - placing.x0, dy = placing.y1 - placing.y0;
+        const far = Math.hypot(dx, dy) * cam.zoom >= 8;
+        pushUndo();
+        const b = createBody(Object.assign({}, placeSpec, { x: placing.x0, y: placing.y0, vx: far ? dx * LAUNCH_GAIN : 0, vy: far ? dy * LAUNCH_GAIN : 0, keepPos: true }));
+        updateGeom(b);
+        select(b);
+        markEdited();
+        placing = null;
+        return;
+    }
+    if (conn) { finishConnection(); conn = null; }
+}
+
+function finishConnection() {
+    const c = conn;
+    const far = Math.hypot(c.x1 - c.x0, c.y1 - c.y0) * cam.zoom >= 10;
+    const b2 = bodyAt(c.x1, c.y1);
+    let j = null;
+    if (c.type === 'pin') {
+        if (c.body && b2 && b2 !== c.body && far) {
+            pushUndo();
+            j = addJoint('pin', c.body, localPoint(c.body, c.x0, c.y0), b2, localPoint(b2, c.x0, c.y0), null);
+        } else if (c.body) {
+            pushUndo();
+            j = addJoint('pin', c.body, c.la, null, null, { x: c.x0, y: c.y0 });
+        }
+    } else if (far) {
+        if (c.body && b2 && c.body !== b2) {
+            pushUndo();
+            j = addJoint(c.type, c.body, c.la, b2, localPoint(b2, c.x1, c.y1), null);
+        } else if (c.body && !b2) {
+            pushUndo();
+            j = addJoint(c.type, c.body, c.la, null, null, { x: c.x1, y: c.y1 });
+        } else if (!c.body && b2) {
+            pushUndo();
+            j = addJoint(c.type, b2, localPoint(b2, c.x1, c.y1), null, null, { x: c.x0, y: c.y0 });
+        }
+    }
+    if (j) { selectJoint(j); markEdited(); }
+}
+
+function onContext(e) {
+    e.preventDefault();
+    const s = sp(e), p = toWorld(s.x, s.y);
+    const b = bodyAt(p.x, p.y);
+    let target = null;
+    if (b && !b.isGround) target = { body: b };
+    else { const j = jointAt(p.x, p.y); if (j) target = { joint: j }; else if (b) target = { body: b }; }
+    if (!target) { closeContext(); return; }
+    contextTarget = target;
+    const isBody = !!target.body;
+    $('ctxStatic').style.display = isBody ? '' : 'none';
+    $('ctxDup').style.display = isBody && !target.body.isGround ? '' : 'none';
+    if (isBody) $('ctxStatic').textContent = target.body.static ? 'Make dynamic' : 'Set static';
+    $('ctxDel').textContent = isBody ? 'Delete object' : 'Delete constraint';
+    const m = $('contextMenu');
+    m.style.left = Math.min(e.clientX, window.innerWidth - 182) + 'px';
+    m.style.top = Math.min(e.clientY, window.innerHeight - 160) + 'px';
+    m.style.display = 'block';
+}
+function closeContext() { const m = $('contextMenu'); if (m) m.style.display = 'none'; }
+
+function onKey(e) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    const typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+    if (!running) return;
+    if (e.key === 'Escape') {
+        const open = document.querySelector('.modal.open');
+        if (open) { open.classList.remove('open'); return; }
+        if (activeTool !== 'select') setTool('select'); else select(null);
+        return;
+    }
+    if (typing || document.querySelector('.modal.open')) return;
+    if (e.code === 'Space') { e.preventDefault(); setPaused(!paused); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && (selected || selectedJoint)) {
+        e.preventDefault();
+        if (selected) deleteBody(selected); else deleteJoint(selectedJoint);
+    }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+    else if ((e.key === 'q' || e.key === 'e' || e.key === 'Q' || e.key === 'E') && selected) {
+        selected.angle += (e.key.toLowerCase() === 'q' ? -15 : 15) * DEG;
+        selected.w = 0; updateGeom(selected); markEdited();
+    }
+    else if (e.key === '.' && paused) stepFrames(1);
+}
+
+/* ---------- editing ---------- */
+
+function select(b) {
+    selected = b; selectedJoint = null;
+    buildInspector();
+}
+function selectJoint(j) {
+    selectedJoint = j; selected = null;
+    buildInspector();
+}
+
+function setStatic(b, v) {
+    b.static = v;
+    if (v) { b.vx = b.vy = b.w = 0; }
+    applyMass(b);
+}
+
+function deleteBody(b) {
+    pushUndo();
+    bodies = bodies.filter(x => x !== b);
+    joints = joints.filter(j => j.a !== b && j.b !== b);
+    if (mouseJ.body === b) mouseJ.body = null;
+    if (selected === b) selected = null;
+    buildInspector();
+    markEdited();
+}
+function deleteJoint(j) {
+    pushUndo();
+    joints = joints.filter(x => x !== j);
+    if (selectedJoint === j) selectedJoint = null;
+    buildInspector();
+    markEdited();
+}
+function duplicateBody(b) {
+    pushUndo();
+    const d = bodyData(b);
+    delete d.id;
+    d.x += 0.6; d.y -= 0.6; d.vx = 0; d.vy = 0; d.w = 0;
+    const nb = createBody(Object.assign(d, { exact: true }));
+    select(nb);
+    markEdited();
+}
+
+/* ---------- inspector ---------- */
+
+const inspRefs = [];
+
+function buildInspector() {
+    const body = $('inspectorBody');
+    body.innerHTML = '';
+    inspRefs.length = 0;
+    if (selected) bodyInspector(body, selected);
+    else if (selectedJoint) jointInspector(body, selectedJoint);
+    else {
+        const d = document.createElement('div');
+        d.className = 'inspector-empty';
+        d.textContent = 'Click an object or constraint to inspect and edit it. Changes take effect immediately.';
+        body.appendChild(d);
+    }
+}
+
+function addRow(parent, label, kind, get, set, opt) {
+    opt = opt || {};
+    const row = document.createElement('label');
+    row.className = 'property-row';
+    const span = document.createElement('span');
+    span.textContent = label;
+    row.appendChild(span);
+    let el;
+    if (kind === 'read') { el = document.createElement('div'); el.className = 'read'; }
+    else {
+        el = document.createElement('input');
+        el.type = kind === 'num' ? 'number' : kind === 'check' ? 'checkbox' : kind === 'color' ? 'color' : 'text';
+        if (kind === 'num') { el.step = opt.step || 0.1; if (opt.min != null) el.min = opt.min; if (opt.max != null) el.max = opt.max; }
+        el.addEventListener(kind === 'check' ? 'change' : 'input', () => {
+            let v;
+            if (kind === 'num') { v = parseFloat(el.value); if (!isFinite(v)) return; }
+            else if (kind === 'check') v = el.checked;
+            else v = el.value;
+            set(v);
+            afterEdit();
+            if (opt.rebuild) buildInspector();
+        });
+    }
+    row.appendChild(el);
+    parent.appendChild(row);
+    inspRefs.push({ el, get, kind });
+    refreshOne(inspRefs[inspRefs.length - 1]);
+}
+
+function afterEdit() {
+    if (selected) updateGeom(selected);
+    markEdited();
+}
+
+function refreshOne(r) {
+    if (r.el === document.activeElement) return;
+    const v = r.get();
+    if (r.kind === 'read') { if (r.el.textContent !== v) r.el.textContent = v; }
+    else if (r.kind === 'check') r.el.checked = !!v;
+    else if (r.kind === 'num') { const s = fmt(v); if (r.el.value !== s) r.el.value = s; }
+    else if (r.el.value !== v) r.el.value = v;
+}
+function refreshInspector() { for (const r of inspRefs) refreshOne(r); }
+
+function bodyInspector(parent, b) {
+    const sec = document.createElement('div');
+    sec.className = 'property-section';
+    const title = document.createElement('div');
+    title.className = 'property-name';
+    title.textContent = b.isGround ? 'Ground' : (b.shape === 'circle' ? 'Circle' : 'Polygon') + ': ' + b.name;
+    sec.appendChild(title);
+    const deg = () => { let a = (b.angle / DEG) % 360; if (a > 180) a -= 360; if (a <= -180) a += 360; return a; };
+    addRow(sec, 'Name', 'text', () => b.name, v => { b.name = v; });
+    addRow(sec, 'Static', 'check', () => b.static, v => setStatic(b, v));
+    addRow(sec, 'Mass (kg)', 'num', () => b.mass, v => { if (v >= 0.01) { b.mass = v; applyMass(b); } }, { step: 0.5, min: 0.01 });
+    if (b.shape === 'circle') {
+        addRow(sec, 'Radius (m)', 'num', () => b.r, v => setRadius(b, v), { step: 0.05, min: 0.05 });
+        addRow(sec, 'Hollow ring', 'check', () => b.hollow, v => { b.hollow = v; shapeProps(b); applyMass(b); });
+    } else {
+        addRow(sec, 'Width (m)', 'num', () => localBounds(b).w, v => setPolySize(b, 'x', v), { step: 0.1, min: 0.05 });
+        addRow(sec, 'Height (m)', 'num', () => localBounds(b).h, v => setPolySize(b, 'y', v), { step: 0.1, min: 0.05 });
+    }
+    addRow(sec, 'Position X (m)', 'num', () => b.x, v => { b.x = v; }, { step: 0.1 });
+    addRow(sec, 'Elevation (m)', 'num', () => -b.y, v => { b.y = -v; }, { step: 0.1 });
+    addRow(sec, 'Angle (°)', 'num', deg, v => { b.angle = v * DEG; }, { step: 5 });
+    addRow(sec, 'Velocity X (m/s)', 'num', () => b.vx, v => { if (!b.static) b.vx = v; }, { step: 0.5 });
+    addRow(sec, 'Velocity Y (m/s)', 'num', () => -b.vy, v => { if (!b.static) b.vy = -v; }, { step: 0.5 });
+    addRow(sec, 'Spin (rad/s)', 'num', () => b.w, v => { if (!b.static) b.w = v; }, { step: 0.5 });
+    addRow(sec, 'Friction (μ)', 'num', () => b.friction, v => { b.friction = Math.max(0, v); }, { step: 0.05, min: 0 });
+    addRow(sec, 'Friction on', 'check', () => b.frictionOn, v => { b.frictionOn = v; });
+    addRow(sec, 'Bounciness', 'num', () => b.restitution, v => { b.restitution = clamp(v, 0, 1.2); }, { step: 0.05, min: 0, max: 1.2 });
+    addRow(sec, 'Force X (N)', 'num', () => b.fx, v => { b.fx = v; }, { step: 1 });
+    addRow(sec, 'Force Y (N)', 'num', () => -b.fy, v => { b.fy = -v; }, { step: 1 });
+    addRow(sec, 'No-collide group', 'num', () => b.group, v => { b.group = Math.max(0, Math.round(v)); }, { step: 1, min: 0 });
+    addRow(sec, 'Color', 'color', () => b.color, v => { b.color = v; });
+    addRow(sec, 'Speed (m/s)', 'read', () => Math.hypot(b.vx, b.vy).toFixed(2), null);
+    addRow(sec, 'Kinetic (J)', 'read', () => (0.5 * b.mass * (b.vx * b.vx + b.vy * b.vy) + 0.5 * b.mass * b.iPerMass * b.w * b.w).toFixed(2), null);
+    addRow(sec, 'Potential (J)', 'read', () => (b.mass * S.gravity * -b.y).toFixed(2), null);
+    addRow(sec, 'Momentum', 'read', () => (b.mass * Math.hypot(b.vx, b.vy)).toFixed(2), null);
+    const acts = document.createElement('div');
+    acts.className = 'mini-actions';
+    if (!b.isGround) {
+        const d = document.createElement('button'); d.textContent = 'DUPLICATE'; d.onclick = () => duplicateBody(b);
+        acts.appendChild(d);
+    }
+    const x = document.createElement('button'); x.textContent = 'DELETE'; x.className = 'danger'; x.onclick = () => deleteBody(b);
+    acts.appendChild(x);
+    sec.appendChild(acts);
+    parent.appendChild(sec);
+}
+
+function jointInspector(parent, j) {
+    const sec = document.createElement('div');
+    sec.className = 'property-section';
+    const title = document.createElement('div');
+    title.className = 'property-name';
+    title.textContent = j.type === 'spring' ? 'Spring' : j.type === 'rod' ? 'Rigid rod' : 'Hinge';
+    sec.appendChild(title);
+    const curLen = () => { const p = jPoints(j); return Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y); };
+    if (j.type === 'spring') {
+        addRow(sec, 'Stiffness (N/m)', 'num', () => j.k, v => { j.k = Math.max(0, v); }, { step: 5, min: 0 });
+        addRow(sec, 'Damping (N·s/m)', 'num', () => j.damp, v => { j.damp = Math.max(0, v); }, { step: 0.1, min: 0 });
+        addRow(sec, 'Rest length (m)', 'num', () => j.rest, v => { j.rest = Math.max(0.01, v); }, { step: 0.1, min: 0.01 });
+        addRow(sec, 'Current length', 'read', () => curLen().toFixed(2) + ' m', null);
+        addRow(sec, 'Spring force', 'read', () => j.force.toFixed(1) + ' N', null);
+    } else if (j.type === 'rod') {
+        addRow(sec, 'Length (m)', 'num', () => j.length, v => { j.length = Math.max(0.01, v); }, { step: 0.1, min: 0.01 });
+        addRow(sec, 'Current length', 'read', () => curLen().toFixed(2) + ' m', null);
+    } else {
+        const d = document.createElement('div');
+        d.className = 'inspector-empty';
+        d.textContent = j.b ? 'Joins two objects at a shared point. Jointed objects do not collide with each other.' : 'Pins an object to a fixed point in the world. The object can still rotate.';
+        sec.appendChild(d);
+    }
+    const acts = document.createElement('div');
+    acts.className = 'mini-actions';
+    if (j.type === 'spring') {
+        const r = document.createElement('button'); r.textContent = 'REST = CURRENT';
+        r.onclick = () => { j.rest = Math.max(0.01, curLen()); refreshInspector(); markEdited(); };
+        acts.appendChild(r);
+    }
+    const x = document.createElement('button'); x.textContent = 'DELETE'; x.className = 'danger'; x.onclick = () => deleteJoint(j);
+    acts.appendChild(x);
+    sec.appendChild(acts);
+    parent.appendChild(sec);
+}
+
+/* ---------- main loop ---------- */
+
+function stepFrames(n) {
+    for (let i = 0; i < n * 4; i++) step(H);
+    sampleHistory();
+}
+
+function sampleHistory() {
+    if (simTime - lastSample < 0.05 && hist.t.length) return;
+    lastSample = simTime;
+    const e = energy();
+    hist.t.push(simTime); hist.ke.push(e.ke); hist.pe.push(e.pe); hist.se.push(e.se); hist.tot.push(e.total);
+    if (hist.t.length > 600) { for (const k in hist) hist[k].shift(); }
+}
+
+function animate(t) {
+    if (!running) { looping = false; return; }
+    requestAnimationFrame(animate);
+    const dt = Math.min((t - lastT) / 1000 || 0.016, 1 / 20);
+    lastT = t;
+    if (!paused) {
+        acc += dt * S.timeScale;
+        let n = 0;
+        while (acc >= H && n < 80) { step(H); acc -= H; n++; }
+        if (n >= 80) acc = 0;
+        sampleHistory();
+    }
+    drawFrame();
+    frames++;
+    if (t - fpsTime > 500) {
+        $('fpsCount').textContent = Math.round(frames * 1000 / (t - fpsTime));
+        frames = 0; fpsTime = t;
+    }
+    uiTick++;
+    if (uiTick % 4 === 0) {
+        $('bodyCount').textContent = bodies.length;
+        refreshInspector();
+        if (view.data) updateData();
+    }
+}
+
+function updateData() {
+    const e = energy();
+    $('dTime').textContent = simTime.toFixed(2) + ' s';
+    $('dKE').textContent = e.ke.toFixed(1) + ' J';
+    $('dPE').textContent = e.pe.toFixed(1) + ' J';
+    $('dSE').textContent = e.se.toFixed(1) + ' J';
+    $('dTot').textContent = e.total.toFixed(1) + ' J';
+    $('dMom').textContent = e.px.toFixed(1) + ', ' + (-e.py).toFixed(1) + ' kg·m/s';
+    drawChart();
+}
+
+function drawChart() {
+    const cv = $('chart'), c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+    const n = hist.t.length;
+    if (n < 2) {
+        c.fillStyle = '#99a5ab'; c.font = '20px Arial'; c.fillText('Press play to record energy', 16, h / 2 + 6);
+        return;
+    }
+    let mx = 1e-6, mn = 0;
+    for (let i = 0; i < n; i++) {
+        mx = Math.max(mx, hist.ke[i], hist.pe[i], hist.se[i], hist.tot[i]);
+        mn = Math.min(mn, hist.ke[i], hist.pe[i], hist.se[i], hist.tot[i]);
+    }
+    const t0 = hist.t[0], t1 = Math.max(hist.t[n - 1], t0 + 1);
+    const X = t => 6 + (t - t0) / (t1 - t0) * (w - 12);
+    const Y = v => h - 8 - (v - mn) / (mx - mn || 1) * (h - 16);
+    c.strokeStyle = 'rgba(41,53,62,0.15)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, Y(0)); c.lineTo(w, Y(0)); c.stroke();
+    const line = (arr, col, wd, dash) => {
+        c.strokeStyle = col; c.lineWidth = wd; c.setLineDash(dash || []);
+        c.beginPath();
+        for (let i = 0; i < n; i++) { const x = X(hist.t[i]), y = Y(arr[i]); if (i) c.lineTo(x, y); else c.moveTo(x, y); }
+        c.stroke(); c.setLineDash([]);
+    };
+    line(hist.pe, '#6fae7c', 3);
+    line(hist.ke, '#3d8fb0', 3);
+    line(hist.se, '#d9923f', 3);
+    line(hist.tot, '#26343d', 2, [8, 6]);
+}
+
+/* ---------- rendering ---------- */
+
+function pathBody(c, b) {
+    if (b.shape === 'circle') { c.arc(0, 0, b.r, 0, Math.PI * 2); return; }
+    const v = b.verts;
+    c.moveTo(v[0].x, v[0].y);
+    for (let i = 1; i < v.length; i++) c.lineTo(v[i].x, v[i].y);
+    c.closePath();
+}
+
+function drawBody(c, b, z) {
+    c.save();
+    c.translate(b.x, b.y);
+    c.rotate(b.angle);
+    c.beginPath();
+    pathBody(c, b);
+    c.fillStyle = b.color;
+    c.fill();
+    c.lineWidth = 1.5 / z;
+    c.strokeStyle = 'rgba(44,55,61,0.42)';
+    c.stroke();
+    if (b.shape === 'circle') {
+        c.beginPath();
+        c.moveTo(0, 0); c.lineTo(b.r * 0.92, 0);
+        c.lineWidth = 2 / z;
+        c.strokeStyle = 'rgba(44,55,61,0.4)';
+        c.stroke();
+        if (b.hollow) {
+            c.beginPath(); c.arc(0, 0, b.r * 0.72, 0, Math.PI * 2);
+            c.strokeStyle = 'rgba(44,55,61,0.3)'; c.stroke();
+        }
+    }
+    if (!b.isGround) {
+        c.beginPath(); c.arc(0, 0, 3 / z, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(44,55,61,0.55)'; c.fill();
+    }
+    if (b.static && !b.isGround) {
+        c.save();
+        c.beginPath(); pathBody(c, b); c.clip();
+        c.strokeStyle = 'rgba(44,55,61,0.18)'; c.lineWidth = 1 / z;
+        const e = bodyExtent(b);
+        c.beginPath();
+        for (let k = -e * 2; k < e * 2; k += 14 / z) { c.moveTo(k - e, -e); c.lineTo(k + e, e); }
+        c.stroke();
+        c.restore();
+    }
+    c.restore();
+}
+
+function drawArrow(c, x1, y1, x2, y2, col, lw, z) {
+    const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy);
+    if (l < 1e-6) return;
+    const ux = dx / l, uy = dy / l, hs = Math.min(9 / z, l * 0.5);
+    c.strokeStyle = col; c.fillStyle = col; c.lineWidth = lw / z; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - ux * hs * 0.6, y2 - uy * hs * 0.6); c.stroke();
+    c.beginPath();
+    c.moveTo(x2, y2);
+    c.lineTo(x2 - ux * hs + -uy * hs * 0.45, y2 - uy * hs + ux * hs * 0.45);
+    c.lineTo(x2 - ux * hs - -uy * hs * 0.45, y2 - uy * hs - ux * hs * 0.45);
+    c.closePath(); c.fill();
+}
+
+function drawSpring(c, x1, y1, x2, y2, z, col, lw) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    if (L < 1e-6) return;
+    const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+    const lead = Math.min(0.35, L * 0.2);
+    const coils = Math.max(3, Math.floor((L - 2 * lead) / 0.28));
+    const amp = 0.16;
+    const span = L - 2 * lead, n = coils * 2;
+    c.strokeStyle = col; c.lineWidth = lw / z; c.lineJoin = 'round'; c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(x1 + ux * lead, y1 + uy * lead);
+    for (let i = 1; i < n; i++) {
+        const t = lead + span * i / n, s = (i % 2 ? 1 : -1) * amp;
+        c.lineTo(x1 + ux * t + nx * s, y1 + uy * t + ny * s);
+    }
+    c.lineTo(x2 - ux * lead, y2 - uy * lead);
+    c.lineTo(x2, y2);
+    c.stroke();
+}
+
+function drawJoint(c, j, z, sel) {
+    const p = jPoints(j), a = p[0], b = p[1];
+    if (j.type === 'spring') {
+        const len = Math.hypot(b.x - a.x, b.y - a.y);
+        const col = len > j.rest * 1.01 ? '#c9763d' : len < j.rest * 0.99 ? '#3d7fb0' : '#6b7a82';
+        if (sel) { c.save(); c.globalAlpha = 0.35; drawSpring(c, a.x, a.y, b.x, b.y, z, '#5b98ad', 9); c.restore(); }
+        drawSpring(c, a.x, a.y, b.x, b.y, z, col, 2.5);
+    } else if (j.type === 'rod') {
+        c.lineCap = 'round';
+        if (sel) { c.strokeStyle = 'rgba(91,152,173,0.4)'; c.lineWidth = 10 / z; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); }
+        c.strokeStyle = '#55646c'; c.lineWidth = 3.5 / z;
+        c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+    }
+    if (j.type !== 'pin') {
+        c.fillStyle = '#34444d';
+        for (const q of j.b ? [a, b] : [a, b]) { c.beginPath(); c.arc(q.x, q.y, 3.5 / z, 0, Math.PI * 2); c.fill(); }
+        if (!j.b) {
+            c.strokeStyle = '#34444d'; c.lineWidth = 1.5 / z;
+            c.beginPath(); c.arc(b.x, b.y, 6 / z, 0, Math.PI * 2); c.stroke();
+        }
+    }
+}
+
+function drawPin(c, j, z, sel) {
+    const a = jPoints(j)[0];
+    c.beginPath(); c.arc(a.x, a.y, 7 / z, 0, Math.PI * 2);
+    c.fillStyle = '#e2a84d'; c.fill();
+    c.lineWidth = (sel ? 3 : 1.8) / z; c.strokeStyle = sel ? '#3d8fb0' : '#6b4f1c'; c.stroke();
+    c.beginPath(); c.arc(a.x, a.y, 2 / z, 0, Math.PI * 2); c.fillStyle = '#6b4f1c'; c.fill();
+    if (!j.b) {
+        c.strokeStyle = 'rgba(52,68,77,0.55)'; c.lineWidth = 1.5 / z;
+        c.beginPath(); c.moveTo(a.x - 11 / z, a.y + 9 / z); c.lineTo(a.x + 11 / z, a.y + 9 / z); c.stroke();
+    }
+}
+
+function drawWorld(c, cx, cy, z, w, h, o) {
+    c.fillStyle = o.background || DEFAULT_SCENE_BACKGROUND;
+    c.fillRect(0, 0, w, h);
+    if (o.backgroundImage && o.backgroundImage.complete && o.backgroundImage.naturalWidth) {
+        const scale = Math.max(w / o.backgroundImage.naturalWidth, h / o.backgroundImage.naturalHeight);
+        const imageWidth = o.backgroundImage.naturalWidth * scale;
+        const imageHeight = o.backgroundImage.naturalHeight * scale;
+        c.drawImage(o.backgroundImage, (w - imageWidth) / 2, (h - imageHeight) / 2, imageWidth, imageHeight);
+    }
+    c.save();
+    c.translate(w / 2, h / 2); c.scale(z, z); c.translate(-cx, -cy);
+    const L = cx - w / 2 / z, R = cx + w / 2 / z, T = cy - h / 2 / z, B = cy + h / 2 / z;
+    let gstep = 1;
+    if (o.grid) {
+        const steps = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+        gstep = steps.find(s => s * z >= 38) || 1000;
+        c.strokeStyle = 'rgba(100,117,124,0.16)'; c.lineWidth = 1 / z;
+        c.beginPath();
+        for (let x = Math.floor(L / gstep) * gstep; x <= R; x += gstep) { c.moveTo(x, T); c.lineTo(x, B); }
+        for (let y = Math.floor(T / gstep) * gstep; y <= B; y += gstep) { c.moveTo(L, y); c.lineTo(R, y); }
+        c.stroke();
+    }
+    if (o.trails) {
+        for (const b of bodies) {
+            const t = b.trail;
+            if (t.length < 4) continue;
+            const pointCount = t.length / 2;
+            c.strokeStyle = b.color; c.lineWidth = 2 / z;
+            for (let i = 1; i < pointCount; i++) {
+                c.globalAlpha = 0.75 * (i / pointCount);
+                c.beginPath(); c.moveTo(t[(i - 1) * 2], t[(i - 1) * 2 + 1]);
+                c.lineTo(t[i * 2], t[i * 2 + 1]); c.stroke();
+            }
+            c.globalAlpha = 0.75;
+            c.beginPath(); c.moveTo(t[t.length - 2], t[t.length - 1]);
+            c.lineTo(b.x, b.y); c.stroke();
+            c.globalAlpha = 1;
+        }
+    }
+    for (const j of joints) if (j.type !== 'pin') drawJoint(c, j, z, o.selJoint === j);
+    for (const b of bodies) drawBody(c, b, z);
+    for (const j of joints) if (j.type === 'pin') drawPin(c, j, z, o.selJoint === j);
+    if (o.sel) {
+        const b = o.sel;
+        c.save(); c.translate(b.x, b.y); c.rotate(b.angle);
+        c.beginPath(); pathBody(c, b);
+        c.strokeStyle = '#3d8fb0'; c.lineWidth = 3 / z; c.lineJoin = 'round';
+        c.stroke(); c.restore();
+    }
+    if (o.vectors) {
+        for (const b of bodies) {
+            if (b.static) continue;
+            const sp2 = Math.hypot(b.vx, b.vy);
+            if (sp2 > 0.05) drawArrow(c, b.x, b.y, b.x + b.vx * 0.3, b.y + b.vy * 0.3, '#c0463d', 2.5, z);
+        }
+    }
+    if (o.forces) {
+        for (const b of bodies) {
+            if (b.fx || b.fy) drawArrow(c, b.x, b.y, b.x + b.fx * 0.1, b.y + b.fy * 0.1, '#d9923f', 3, z);
+        }
+    }
+    c.restore();
+    if (o.labels && o.grid) {
+        c.fillStyle = '#5d6b73'; c.font = '10px Arial'; c.textAlign = 'center';
+        const y0s = (0 - cy) * z + h / 2;
+        const ly = y0s > 14 && y0s < h - 6 ? y0s + 14 : h - 8;
+        for (let x = Math.ceil(L / gstep) * gstep; x <= R; x += gstep) {
+            const sx = (x - cx) * z + w / 2;
+            if (sx > 30 && sx < w - 40) c.fillText(fmt(x) + ' m', sx, ly);
+        }
+        c.textAlign = 'left';
+        for (let y = Math.ceil(T / gstep) * gstep; y <= B; y += gstep) {
+            const sy = (y - cy) * z + h / 2;
+            if (Math.abs(y) > 1e-9 && sy > 20 && sy < h - 40) c.fillText(fmt(-y) + ' m', 6, sy - 3);
+        }
+    }
+}
+
+function drawFrame() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const b of bodies) updateGeom(b);
+    drawWorld(ctx, cam.x, cam.y, cam.zoom, SW, SH, { grid: view.grid, labels: true, trails: view.trails, vectors: view.vectors, forces: true, sel: selected, selJoint: selectedJoint, background: sceneBackground.color, backgroundImage: sceneBackgroundImage });
+    const z = cam.zoom;
+    ctx.save();
+    ctx.translate(SW / 2, SH / 2); ctx.scale(z, z); ctx.translate(-cam.x, -cam.y);
+
+    if (selected && activeTool === 'select') {
+        const h = handlePos(selected);
+        ctx.strokeStyle = '#3d8fb0'; ctx.lineWidth = 1.5 / z;
+        ctx.beginPath(); ctx.moveTo(selected.x, selected.y); ctx.lineTo(h.x, h.y); ctx.stroke();
+        ctx.beginPath(); ctx.arc(h.x, h.y, 7 / z, 0, Math.PI * 2);
+        ctx.fillStyle = rotating ? '#3d8fb0' : '#f6f8f8'; ctx.fill(); ctx.stroke();
+    }
+
+    if (activeTool === 'place' && placeSpec && (placing || mouseScr)) {
+        const x0 = placing ? placing.x0 : mouse.x, y0 = placing ? placing.y0 : mouse.y;
+        ctx.globalAlpha = 0.55;
+        drawBody(ctx, ghostBody(placeSpec, x0, y0), z);
+        ctx.globalAlpha = 1;
+        if (placing && Math.hypot(placing.x1 - placing.x0, placing.y1 - placing.y0) * z >= 8) {
+            const dx = placing.x1 - placing.x0, dy = placing.y1 - placing.y0;
+            const vx = dx * LAUNCH_GAIN, vy = dy * LAUNCH_GAIN;
+            drawArrow(ctx, x0, y0, placing.x1, placing.y1, '#2b7d9c', 3, z);
+            ctx.fillStyle = 'rgba(43,125,156,0.8)';
+            let t = 0.06, px = x0, py = y0;
+            for (let i = 0; i < 200 && t < 14; i++, t += 0.06) {
+                px = x0 + vx * t; py = y0 + vy * t + 0.5 * S.gravity * t * t;
+                if (py > 0 && y0 <= 0) break;
+                ctx.beginPath(); ctx.arc(px, py, 2.2 / z, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+    }
+
+    if (conn) {
+        const a = conn.body ? jPointOfLocal(conn.body, conn.la) : { x: conn.x0, y: conn.y0 };
+        ctx.strokeStyle = '#2b7d9c'; ctx.lineWidth = 2.5 / z; ctx.setLineDash([6 / z, 5 / z]);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(conn.x1, conn.y1); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = '#2b7d9c';
+        ctx.beginPath(); ctx.arc(a.x, a.y, 4 / z, 0, Math.PI * 2); ctx.fill();
+        const over = bodyAt(conn.x1, conn.y1);
+        if (over) { ctx.beginPath(); ctx.arc(conn.x1, conn.y1, 5 / z, 0, Math.PI * 2); ctx.fill(); }
+    }
+
+    if (dragBody && dragMode === 'joint') {
+        const a = jPointOfLocal(dragBody, { x: mouseJ.lx, y: mouseJ.ly });
+        ctx.strokeStyle = 'rgba(43,125,156,0.8)'; ctx.lineWidth = 2 / z; ctx.setLineDash([4 / z, 4 / z]);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mouseJ.tx, mouseJ.ty); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+
+    if (placing && Math.hypot(placing.x1 - placing.x0, placing.y1 - placing.y0) * cam.zoom >= 8) {
+        const dx = placing.x1 - placing.x0, dy = placing.y1 - placing.y0;
+        const v = Math.hypot(dx, dy) * LAUNCH_GAIN, ang = Math.atan2(-dy, dx) / DEG;
+        const label = v.toFixed(1) + ' m/s @ ' + ang.toFixed(0) + '°';
+        ctx.font = '700 12px Arial';
+        const tw = ctx.measureText(label).width + 16;
+        ctx.fillStyle = '#26343d';
+        ctx.fillRect(mouseScr.x + 14, mouseScr.y - 32, tw, 22);
+        ctx.fillStyle = 'white'; ctx.textAlign = 'left';
+        ctx.fillText(label, mouseScr.x + 22, mouseScr.y - 17);
+    }
+}
+
+function jPointOfLocal(b, l) {
+    const c = Math.cos(b.angle), s = Math.sin(b.angle);
+    return { x: b.x + c * l.x - s * l.y, y: b.y + s * l.x + c * l.y };
+}
+
+function centeredVerts(spec) {
+    if (!spec._cv) {
+        const c = polyCentroid(spec.verts);
+        spec._cv = spec.verts.map(p => ({ x: p.x - c.x, y: p.y - c.y }));
+    }
+    return spec._cv;
+}
+
+function ghostBody(spec, x, y) {
+    return { shape: spec.shape || 'poly', r: spec.r, verts: spec.shape === 'circle' ? null : centeredVerts(spec), x, y, angle: 0, color: spec.color || '#779bb0', hollow: spec.hollow, static: spec.static, bound: 1, isGround: false };
+}
+
+/* ---------- thumbnails ---------- */
+
+function thumb(spec, w, h, pad) {
+    const cv = document.createElement('canvas');
+    cv.width = w * 2; cv.height = h * 2;
+    cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    const c = cv.getContext('2d');
+    c.scale(2, 2);
+    const g = ghostBody(spec, 0, 0);
+    let bw = 0, bh = 0;
+    if (g.shape === 'circle') bw = bh = g.r;
+    else for (const v of g.verts) { bw = Math.max(bw, Math.abs(v.x)); bh = Math.max(bh, Math.abs(v.y)); }
+    const z = Math.min((w - 2 * pad) / (2 * bw), (h - 2 * pad) / (2 * bh));
+    g.bound = Math.max(bw, bh);
+    c.translate(w / 2, h / 2); c.scale(z, z);
+    drawBody(c, g, z);
+    return cv;
+}
+
+const setupThumbs = new Map();
+function setupThumb(s) {
+    if (setupThumbs.has(s.id)) return setupThumbs.get(s.id);
+    const saved = JSON.stringify(serialize());
+    const sId = selected ? selected.id : null, sJ = selectedJoint ? selectedJoint.id : null;
+    const gSave = { gravity: S.gravity, airDrag: S.airDrag, friction: S.friction };
+    let url = '';
+    try {
+        clearWorld(); S.gravity = 9.81; S.airDrag = 0; S.friction = true;
+        G();
+        const r = s.build() || {};
+        const cv = document.createElement('canvas');
+        cv.width = 420; cv.height = 240;
+        const c = cv.getContext('2d');
+        c.scale(2, 2);
+        const f = r.fit || { x0: -10, x1: 10, y0: -1, y1: 10 };
+        const z = Math.min(210 / (f.x1 - f.x0), 120 / (f.y1 - f.y0)) * 0.95;
+        drawWorld(c, (f.x0 + f.x1) / 2, -(f.y0 + f.y1) / 2, z, 210, 120, { grid: false, trails: false });
+        url = cv.toDataURL();
+    } catch (err) { console.error(err); }
+    deserialize(JSON.parse(saved));
+    Object.assign(S, gSave);
+    remapSelection(sId, sJ);
+    for (const b of bodies) updateGeom(b);
+    setupThumbs.set(s.id, url);
+    return url;
+}
+
+/* ---------- library ---------- */
+
+let libCat = 'Shapes';
+const CAT_INFO = {
+    'Shapes': 'Basic building blocks. Click one, then click in the scene to place it.',
+    'Surfaces & Ramps': 'Static objects: ramps, platforms, walls and special surfaces.',
+    'Materials': 'Objects with different mass, friction and bounciness.',
+    'Launching & Kinematics': 'Projectiles, free fall and motion in two dimensions.',
+    'Forces & Friction': "Newton's laws, inclined planes, static and kinetic friction, rolling.",
+    'Work & Energy': 'Kinetic and potential energy, work done by friction and gravity.',
+    'Springs & Oscillations': "Hooke's law, simple harmonic motion, pendulums and coupled systems.",
+    'Momentum & Impulse': 'Collisions, conservation of momentum, restitution and impulse.',
+    'Fun': 'Chains, ragdolls and destruction.',
+    'My Objects': 'Objects you designed in the editor.'
+};
+
+function openLibrary(cat) {
+    if (cat) libCat = cat;
+    $('libraryModal').classList.add('open');
+    renderLib();
+}
+function closeLibrary() { $('libraryModal').classList.remove('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+
+function renderLib() {
+    const nav = $('libNav');
+    nav.innerHTML = '';
+    const group = t => { const d = document.createElement('div'); d.className = 'lib-group'; d.textContent = t; nav.appendChild(d); };
+    const item = (name, cls) => {
+        const b = document.createElement('button');
+        b.textContent = name;
+        if (cls) b.className = cls;
+        if (libCat === name) b.classList.add('active');
+        b.onclick = () => { libCat = name; renderLib(); };
+        nav.appendChild(b);
+    };
+    group('OBJECTS');
+    ['Shapes', 'Surfaces & Ramps', 'Materials'].forEach(c => item(c));
+    group('PHYSICS SETUPS');
+    SETUP_CATS.forEach(c => item(c));
+    group('MY OBJECTS');
+    item('My Objects');
+    item('+ Create object', 'create');
+
+    const main = $('libMain');
+    main.innerHTML = '';
+    if (libCat === '+ Create object') { renderEditor(main); return; }
+
+    const h = document.createElement('h2'); h.textContent = libCat; main.appendChild(h);
+    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = CAT_INFO[libCat] || ''; main.appendChild(sub);
+    const grid = document.createElement('div'); grid.className = 'grid'; main.appendChild(grid);
+
+    const objs = OBJECTS.filter(o => o.cat === libCat);
+    objs.forEach(o => grid.appendChild(objectCard(o.name, o.desc, o.spec)));
+
+    if (libCat === 'My Objects') {
+        if (!customObjects.length) {
+            const n = document.createElement('div'); n.className = 'note';
+            n.textContent = 'Nothing here yet. Use "+ Create object" to design your own shape.';
+            main.appendChild(n);
+        }
+        customObjects.forEach(o => {
+            const card = objectCard(o.name, 'Custom ' + (o.spec.shape === 'circle' ? 'circle' : 'polygon') + '.', o.spec, true);
+            const del = card.querySelector('.go');
+            del.textContent = 'DELETE'; del.classList.add('danger');
+            del.onclick = ev => {
+                ev.stopPropagation();
+                customObjects = customObjects.filter(x => x.id !== o.id);
+                lsSet('mechanics.custom', customObjects);
+                renderLib();
+            };
+            grid.appendChild(card);
+        });
+    }
+
+    SETUPS.filter(s => s.cat === libCat).forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const img = document.createElement('img');
+        img.className = 'thumb';
+        img.src = setupThumb(s);
+        card.appendChild(img);
+        const info = document.createElement('div');
+        info.className = 'info';
+        info.innerHTML = '<div class="name"></div><div class="desc"></div><div class="go">LOAD SETUP ▸</div>';
+        info.querySelector('.name').textContent = s.name;
+        info.querySelector('.desc').textContent = s.desc;
+        card.appendChild(info);
+        card.onclick = () => loadSetup(s);
+        grid.appendChild(card);
+    });
+}
+
+function objectCard(name, desc, spec) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const holder = document.createElement('div');
+    holder.style.cssText = 'height:120px;display:flex;align-items:center;justify-content:center;background:#e6ebec';
+    holder.appendChild(thumb(spec, 210, 120, 22));
+    card.appendChild(holder);
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.innerHTML = '<div class="name"></div><div class="desc"></div><div class="go">PLACE IN SCENE ▸</div>';
+    info.querySelector('.name').textContent = name;
+    info.querySelector('.desc').textContent = desc;
+    card.appendChild(info);
+    card.onclick = () => { const s = Object.assign({}, spec); s.key = spec.key || 'custom'; s.name = name; closeLibrary(); setTool('place', s); };
+    return card;
+}
+
+/* ---------- object editor ---------- */
+
+const ed = { mode: 'poly', pts: [], r: 0.75, drag: -1, name: 'My object', density: 1, friction: 0.5, restitution: 0.2, color: '#7fae8b', static: false };
+const ES = 70, EC = 210;
+
+function snap(v) { return Math.round(v / 0.125) * 0.125; }
+
+function renderEditor(main) {
+    const h = document.createElement('h2'); h.textContent = 'Create an object'; main.appendChild(h);
+    const sub = document.createElement('div'); sub.className = 'sub';
+    sub.textContent = 'Click to add corner points, drag points to move them, right-click a point to remove it. The shape is made convex automatically.';
+    main.appendChild(sub);
+    const wrap = document.createElement('div'); wrap.className = 'editor'; main.appendChild(wrap);
+    const cv = document.createElement('canvas');
+    cv.width = 840; cv.height = 840;
+    wrap.appendChild(cv);
+    const form = document.createElement('div'); form.className = 'form'; wrap.appendChild(form);
+
+    const info = document.createElement('div'); info.className = 'note';
+    const draw = () => { drawEditor(cv); updateInfo(); };
+    const updateInfo = () => {
+        const spec = editorSpec(true);
+        if (!spec) { info.textContent = 'Add at least 3 points that are not in a line.'; return; }
+        const area = spec.shape === 'circle' ? Math.PI * spec.r * spec.r : polyCentroid(spec.verts).area;
+        info.textContent = 'Area ' + area.toFixed(2) + ' m², mass ' + (area * ed.density).toFixed(2) + ' kg' + (spec.shape === 'poly' ? ', ' + spec.verts.length + ' corners' : '');
+    };
+
+    const row = (label, el) => { const r = document.createElement('label'); r.className = 'form-row'; const s = document.createElement('span'); s.textContent = label; r.appendChild(s); r.appendChild(el); form.appendChild(r); return r; };
+    const inp = (type, key, step) => {
+        const el = document.createElement('input'); el.type = type;
+        if (type === 'checkbox') { el.checked = ed[key]; el.onchange = () => { ed[key] = el.checked; draw(); }; }
+        else {
+            el.value = ed[key];
+            if (step) el.step = step;
+            el.oninput = () => { ed[key] = type === 'number' ? (parseFloat(el.value) || 0) : el.value; draw(); };
+        }
+        return el;
+    };
+    row('Name', inp('text', 'name'));
+    const modeSel = document.createElement('select');
+    modeSel.innerHTML = '<option value="poly">Polygon</option><option value="circle">Circle</option>';
+    modeSel.value = ed.mode;
+    modeSel.style.cssText = 'height:30px;border:1px solid rgba(41,53,62,0.16);border-radius:4px;padding:0 6px';
+    modeSel.onchange = () => { ed.mode = modeSel.value; radiusRow.style.display = ed.mode === 'circle' ? '' : 'none'; draw(); };
+    row('Shape', modeSel);
+    const radiusRow = row('Radius (m)', inp('number', 'r', 0.05));
+    radiusRow.style.display = ed.mode === 'circle' ? '' : 'none';
+    row('Density (kg/m²)', inp('number', 'density', 0.1));
+    row('Friction (μ)', inp('number', 'friction', 0.05));
+    row('Bounciness', inp('number', 'restitution', 0.05));
+    row('Color', inp('color', 'color'));
+    row('Static', inp('checkbox', 'static'));
+    form.appendChild(info);
+
+    const presets = document.createElement('div'); presets.className = 'btn-row';
+    [['RECTANGLE', [[-1, -0.5], [1, -0.5], [1, 0.5], [-1, 0.5]]], ['TRIANGLE', [[-1, 0.8], [1, 0.8], [0, -0.8]]], ['L-SHAPE', [[-1, -1], [0, -1], [0, 0], [1, 0], [1, 1], [-1, 1]]], ['HEXAGON', [[1, 0], [0.5, 0.87], [-0.5, 0.87], [-1, 0], [-0.5, -0.87], [0.5, -0.87]]]].forEach(p => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = p[0];
+        b.onclick = () => { ed.mode = 'poly'; modeSel.value = 'poly'; radiusRow.style.display = 'none'; ed.pts = p[1].map(q => ({ x: q[0], y: q[1] })); draw(); };
+        presets.appendChild(b);
+    });
+    form.appendChild(presets);
+
+    const acts = document.createElement('div'); acts.className = 'btn-row';
+    const mk = (t, cls, fn) => { const b = document.createElement('button'); b.className = 'btn ' + (cls || ''); b.textContent = t; b.onclick = fn; acts.appendChild(b); };
+    mk('UNDO POINT', '', () => { ed.pts.pop(); draw(); });
+    mk('CLEAR', '', () => { ed.pts = []; draw(); });
+    form.appendChild(acts);
+    const acts2 = document.createElement('div'); acts2.className = 'btn-row';
+    const mk2 = (t, cls, fn) => { const b = document.createElement('button'); b.className = 'btn ' + (cls || ''); b.textContent = t; b.onclick = fn; acts2.appendChild(b); };
+    mk2('SAVE TO LIBRARY', '', () => saveEditor(false));
+    mk2('SAVE & PLACE', 'primary', () => saveEditor(true));
+    form.appendChild(acts2);
+
+    // canvas interaction
+    const pos = e => { const r = cv.getBoundingClientRect(); const px = (e.clientX - r.left) * 420 / r.width, py = (e.clientY - r.top) * 420 / r.height; return { px, py, x: (px - EC) / ES, y: (py - EC) / ES }; };
+    cv.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        if (ed.mode !== 'poly') return;
+        const p = pos(e), i = ed.pts.findIndex(q => Math.hypot(q.x * ES + EC - p.px, q.y * ES + EC - p.py) < 10);
+        if (i >= 0) { ed.pts.splice(i, 1); draw(); }
+    });
+    cv.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        cv.setPointerCapture(e.pointerId);
+        const p = pos(e);
+        if (ed.mode === 'circle') { ed.r = clamp(Math.round(Math.hypot(p.x, p.y) / 0.05) * 0.05, 0.1, 2.8); ed.drag = 0; syncR(); draw(); return; }
+        const i = ed.pts.findIndex(q => Math.hypot(q.x * ES + EC - p.px, q.y * ES + EC - p.py) < 10);
+        if (i >= 0) ed.drag = i;
+        else { ed.pts.push({ x: clamp(snap(p.x), -2.9, 2.9), y: clamp(snap(p.y), -2.9, 2.9) }); ed.drag = ed.pts.length - 1; }
+        draw();
+    });
+    cv.addEventListener('pointermove', e => {
+        if (ed.drag < 0) return;
+        const p = pos(e);
+        if (ed.mode === 'circle') { ed.r = clamp(Math.round(Math.hypot(p.x, p.y) / 0.05) * 0.05, 0.1, 2.8); syncR(); }
+        else { ed.pts[ed.drag] = { x: clamp(snap(p.x), -2.9, 2.9), y: clamp(snap(p.y), -2.9, 2.9) }; }
+        draw();
+    });
+    const up = () => { ed.drag = -1; };
+    cv.addEventListener('pointerup', up);
+    cv.addEventListener('pointercancel', up);
+    const syncR = () => { const i = radiusRow.querySelector('input'); if (i) i.value = fmt(ed.r); };
+    draw();
+}
+
+function drawEditor(cv) {
+    const c = cv.getContext('2d');
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    c.clearRect(0, 0, 420, 420);
+    c.fillStyle = '#fff'; c.fillRect(0, 0, 420, 420);
+    for (let i = -3; i <= 3; i += 0.25) {
+        c.strokeStyle = Number.isInteger(i) ? 'rgba(41,53,62,0.22)' : 'rgba(41,53,62,0.07)';
+        c.lineWidth = 1;
+        c.beginPath(); c.moveTo(EC + i * ES, 0); c.lineTo(EC + i * ES, 420); c.moveTo(0, EC + i * ES); c.lineTo(420, EC + i * ES); c.stroke();
+    }
+    c.fillStyle = '#99a5ab'; c.font = '10px Arial';
+    c.fillText('1 m grid', 8, 412);
+    c.fillStyle = 'rgba(217,146,63,0.9)';
+    c.beginPath(); c.arc(EC, EC, 3, 0, Math.PI * 2); c.fill();
+    if (ed.mode === 'circle') {
+        c.beginPath(); c.arc(EC, EC, ed.r * ES, 0, Math.PI * 2);
+        c.fillStyle = ed.color; c.globalAlpha = 0.85; c.fill(); c.globalAlpha = 1;
+        c.strokeStyle = '#34444d'; c.lineWidth = 2; c.stroke();
+        return;
+    }
+    const hull = ed.pts.length >= 3 ? convexHull(ed.pts) : [];
+    if (hull.length >= 3) {
+        c.beginPath();
+        hull.forEach((p, i) => { const x = EC + p.x * ES, y = EC + p.y * ES; if (i) c.lineTo(x, y); else c.moveTo(x, y); });
+        c.closePath();
+        c.fillStyle = ed.color; c.globalAlpha = 0.85; c.fill(); c.globalAlpha = 1;
+        c.strokeStyle = '#34444d'; c.lineWidth = 2; c.stroke();
+    }
+    c.strokeStyle = 'rgba(43,125,156,0.5)'; c.lineWidth = 1; c.setLineDash([4, 4]);
+    c.beginPath();
+    ed.pts.forEach((p, i) => { const x = EC + p.x * ES, y = EC + p.y * ES; if (i) c.lineTo(x, y); else c.moveTo(x, y); });
+    c.stroke(); c.setLineDash([]);
+    ed.pts.forEach((p, i) => {
+        c.beginPath(); c.arc(EC + p.x * ES, EC + p.y * ES, 5, 0, Math.PI * 2);
+        c.fillStyle = i === ed.drag ? '#2b7d9c' : '#fff'; c.fill();
+        c.strokeStyle = '#2b7d9c'; c.lineWidth = 2; c.stroke();
+    });
+}
+
+function editorSpec(silent) {
+    const base = { density: Math.max(0.01, ed.density), friction: Math.max(0, ed.friction), restitution: clamp(ed.restitution, 0, 1.2), color: ed.color, static: ed.static };
+    if (ed.mode === 'circle') return Object.assign({ shape: 'circle', r: Math.max(0.1, ed.r) }, base);
+    if (ed.pts.length < 3) return null;
+    const hull = convexHull(ed.pts);
+    if (hull.length < 3 || polyCentroid(hull).area < 0.01) return null;
+    return Object.assign({ shape: 'poly', verts: hull }, base);
+}
+
+function saveEditor(place) {
+    const spec = editorSpec();
+    if (!spec) { toast('Add at least 3 points that are not in a line'); return; }
+    const name = (ed.name || 'My object').trim() || 'My object';
+    const id = 'c' + Date.now();
+    spec.key = id; spec.name = name;
+    customObjects.push({ id, name, spec });
+    lsSet('mechanics.custom', customObjects);
+    toast('Saved "' + name + '" to My Objects');
+    if (place) { closeLibrary(); setTool('place', Object.assign({}, spec)); }
+    else { libCat = 'My Objects'; renderLib(); }
+}
+
+/* ---------- save / load ---------- */
+
+function initSaveUI() {
+    $('saveDo').onclick = () => {
+        const name = $('saveName').value.trim();
+        if (!name) { toast('Give your simulation a name'); return; }
+        const saves = lsGet('mechanics.saves', {});
+        const d = serialize();
+        d.cam = { x: cam.x, y: cam.y, zoom: cam.zoom };
+        saves[name] = { date: Date.now(), data: d };
+        if (!lsSet('mechanics.saves', saves)) { toast('Could not save (storage is blocked). Use EXPORT FILE instead.'); return; }
+        toast('Saved "' + name + '"');
+        refreshSaveList();
+    };
+    $('exportBtn').onclick = () => {
+        if (!inited || !bodies.length) { toast('Nothing to export yet'); return; }
+        const d = serialize(); d.cam = { x: cam.x, y: cam.y, zoom: cam.zoom };
+        const blob = new Blob([JSON.stringify(d)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (($('saveName').value.trim() || 'mechanics-simulation')) + '.json';
+        document.body.appendChild(a); a.click(); a.remove();
+    };
+    $('importFile').onchange = e => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const rd = new FileReader();
+        rd.onload = () => {
+            try { loadSceneData(JSON.parse(rd.result)); closeModal('saveModal'); }
+            catch (err) { toast('That file is not a valid simulation'); }
+        };
+        rd.readAsText(f);
+        e.target.value = '';
+    };
+}
+
+function openSave() {
+    $('saveRow').style.display = inited && running ? 'flex' : 'none';
+    refreshSaveList();
+    $('saveModal').classList.add('open');
+}
+
+function refreshSaveList() {
+    const saves = lsGet('mechanics.saves', {});
+    const list = $('saveList');
+    list.innerHTML = '';
+    const names = Object.keys(saves).sort((a, b) => saves[b].date - saves[a].date);
+    if (!names.length) {
+        const n = document.createElement('div'); n.className = 'note'; n.textContent = 'No saved simulations yet.';
+        list.appendChild(n);
+        return;
+    }
+    names.forEach(name => {
+        const s = saves[name];
+        const row = document.createElement('div'); row.className = 'save-item';
+        const meta = document.createElement('div'); meta.className = 'meta';
+        meta.innerHTML = '<b></b><span></span>';
+        meta.querySelector('b').textContent = name;
+        meta.querySelector('span').textContent = new Date(s.date).toLocaleString() + ' · ' + (s.data.bodies || []).length + ' bodies';
+        const load = document.createElement('button'); load.className = 'btn primary'; load.textContent = 'LOAD';
+        load.onclick = () => { loadSceneData(s.data); closeModal('saveModal'); };
+        const del = document.createElement('button'); del.className = 'btn danger'; del.textContent = 'DELETE';
+        del.onclick = () => { const all = lsGet('mechanics.saves', {}); delete all[name]; lsSet('mechanics.saves', all); refreshSaveList(); };
+        row.appendChild(meta); row.appendChild(load); row.appendChild(del);
+        list.appendChild(row);
+    });
+}
+
+function loadSceneData(d) {
+    if (!d || !Array.isArray(d.bodies)) throw new Error('bad');
+    showSim();
+    pushUndo();
+    selected = null; selectedJoint = null;
+    deserialize(d);
+    for (const b of bodies) updateGeom(b);
+    if (d.cam) { cam.x = d.cam.x; cam.y = d.cam.y; cam.zoom = d.cam.zoom; homeCam = { x: cam.x, y: cam.y, zoom: cam.zoom }; }
+    else resetCam();
+    clearHistory();
+    setPaused(true);
+    snapshot = JSON.stringify(serialize());
+    buildInspector();
+    toast('Simulation loaded (paused)');
+}
+
+/* ---------- settings ---------- */
+
+function openSettings() {
+    loadPrefs();
+    $('setGravity').value = S.gravity;
+    $('setDrag').value = S.airDrag;
+    $('setFriction').checked = S.friction;
+    $('setGrid').checked = view.grid;
+    $('setVectors').checked = view.vectors;
+    $('setTrails').checked = view.trails;
+    $('setData').checked = view.data;
+    $('setDarkTheme').checked = uiTheme === 'dark';
+    $('setBackgroundColor').value = sceneBackground.color;
+    $('settingsModal').classList.add('open');
+}
+
+function setSceneBackgroundImage(source) {
+    sceneBackground.image = source;
+    sceneBackgroundImage = null;
+    if (!source) return;
+    const image = new Image();
+    image.onload = () => {
+        if (sceneBackground.image !== source) return;
+        sceneBackgroundImage = image;
+        if (ctx) drawFrame();
+    };
+    image.src = source;
+}
+
+function initSettingsUI() {
+    const num = (id, fn) => $(id).addEventListener('input', e => { const v = parseFloat(e.target.value); if (isFinite(v)) fn(v); });
+    num('setGravity', v => { S.gravity = v; markEdited(); savePrefs(); });
+    num('setDrag', v => { S.airDrag = Math.max(0, v); markEdited(); savePrefs(); });
+    $('setFriction').onchange = e => { S.friction = e.target.checked; markEdited(); savePrefs(); };
+    $('setBackgroundColor').addEventListener('input', e => {
+        sceneBackground.color = e.target.value;
+        setSceneBackgroundImage('');
+        $('setBackgroundImage').value = '';
+        markEdited();
+        savePrefs();
+        drawFrame();
+    });
+    $('setBackgroundImage').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+            toast('Choose an image smaller than 2 MB');
+            e.target.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            const imageSource = reader.result;
+            const image = new Image();
+            image.onload = () => {
+                sceneBackground.image = imageSource;
+                sceneBackgroundImage = image;
+                markEdited();
+                if (!savePrefs()) toast('Image is too large for local storage');
+                drawFrame();
+            };
+            image.onerror = () => toast('Could not load that image');
+            image.src = imageSource;
+        };
+        reader.onerror = () => toast('Could not read that image');
+        reader.readAsDataURL(file);
+    });
+    const vw = (id, key) => $(id).addEventListener('change', e => {
+        view[key] = e.target.checked;
+        if (key === 'trails' && !view[key]) for (const b of bodies) b.trail.length = 0;
+        savePrefs(); updateViewButtons();
+    });
+    vw('setGrid', 'grid'); vw('setVectors', 'vectors'); vw('setTrails', 'trails'); vw('setData', 'data');
+    $('setDarkTheme').addEventListener('change', e => {
+        applyTheme(e.target.checked ? 'dark' : 'light');
+        savePrefs();
+    });
+    document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+        S.gravity = parseFloat(b.dataset.g);
+        $('setGravity').value = S.gravity;
+        markEdited();
+        savePrefs();
+    });
+}
+
+// the menu can open settings before the simulation has been initialised
+(function bootSettings() {
+    loadPrefs();
+    const gravityInput = $('setGravity');
+    if (gravityInput && !inited) {
+        const early = () => {
+            if (inited) return;
+            const g = parseFloat(gravityInput.value);
+            if (isFinite(g)) S.gravity = g;
+        };
+        gravityInput.addEventListener('input', early);
+        $('setDrag').addEventListener('input', e => { if (!inited) S.airDrag = Math.max(0, parseFloat(e.target.value) || 0); });
+        $('setFriction').addEventListener('change', e => { if (!inited) S.friction = e.target.checked; });
+    }
+})();
+
+window.addEventListener('resize', resizeHomeDemo);
+startHomeDemo();
+</script>
+
+</body>
+</html>
